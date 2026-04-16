@@ -24,7 +24,7 @@ class Login extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text("App Banco"),
+        title: const Text("App Banco JB"),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
         centerTitle: true,
