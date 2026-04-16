@@ -10,50 +10,61 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      home: const MyHomePage(title: 'App Tienda'),
+      debugShowCheckedModeBanner: false,
+      title: 'App Banco',
+      home: const Login(),
     );
   }
 }
 
-class MyHomePage extends StatefulWidget {
-  const MyHomePage({super.key, required this.title});
+class Login extends StatelessWidget {
+  const Login({super.key});
 
-  final String title;
-
-  @override
-  State<MyHomePage> createState() => _MyHomePageState();
-}
-
-class _MyHomePageState extends State<MyHomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.title),
+        title: const Text("App Banco"),
+        backgroundColor: Colors.blue,
+        foregroundColor: Colors.white,
+        centerTitle: true,
       ),
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
             Image.network(
-              'https://cdn-icons-png.flaticon.com/512/149/149071.png',
-              height: 150,
+              'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
+              height: 180,
             ),
+            const SizedBox(height: 20),
             const Text(
-              'Mi Tienda',
-              style: TextStyle(fontSize: 30),
+              "Bienvenido a App Banco",
+              style: TextStyle(
+                fontSize: 32,
+                fontWeight: FontWeight.bold,
+              ),
             ),
+            const SizedBox(height: 20),
             Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
                 ElevatedButton(
                   onPressed: () {},
-                  child: const Text('Click me!'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.green,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("Ingresar"),
                 ),
                 const SizedBox(width: 10),
                 ElevatedButton(
                   onPressed: () {},
-                  child: const Text('Click me too!'),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.orange,
+                    foregroundColor: Colors.white,
+                  ),
+                  child: const Text("Registrarse"),
                 ),
               ],
             ),
