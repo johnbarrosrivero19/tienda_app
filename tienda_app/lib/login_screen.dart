@@ -1,3 +1,4 @@
+import 'home_screen.dart';
 import 'package:flutter/material.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -8,7 +9,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -17,9 +17,7 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(58.0),
-        decoration: const BoxDecoration(
-          color: Colors.blue,
-        ),
+        decoration: const BoxDecoration(color: Colors.blue),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
@@ -65,17 +63,36 @@ class _LoginScreenState extends State<LoginScreen> {
 
               ElevatedButton(
                 onPressed: () {
-                  if (usuarioController.text.isEmpty ||
-                      passwordController.text.isEmpty) {
+                  String usuario = usuarioController.text;
+                  String password = passwordController.text;
+
+                  // 1. Validar campos vacíos
+                  if (usuario.isEmpty || password.isEmpty) {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
                         content: Text("Todos los campos son obligatorios"),
                       ),
                     );
-                  } else {
+                  }
+                  // 2. Validar credenciales correctas
+                  else if (usuario == "admin" && password == "1234") {
+                    ScaffoldMessenger.of(context).showSnackBar(
+                      const SnackBar(content: Text("Login correcto")),
+                    );
+
+                    // 3. Navegar a la pantalla principal
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const HomeScreen(),
+                      ),
+                    );
+                  }
+                  // 4. Datos incorrectos
+                  else {
                     ScaffoldMessenger.of(context).showSnackBar(
                       const SnackBar(
-                        content: Text("Login correcto"),
+                        content: Text("Usuario o contraseña incorrectos"),
                       ),
                     );
                   }
