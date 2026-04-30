@@ -43,18 +43,59 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            // 💳 Tarjeta saldo
+            // 💳 TARJETA DE SALDO PRO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
-                color: Colors.blue,
-                borderRadius: BorderRadius.circular(15),
+                gradient: const LinearGradient(
+                  colors: [Colors.blue, Colors.indigo],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  )
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
+                  // 🏦 Encabezado
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: const [
+                      Text(
+                        "Banco JB",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      Icon(Icons.account_balance, color: Colors.white),
+                    ],
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 💳 Número de cuenta
+                  const Text(
+                    "**** **** **** 1234",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      letterSpacing: 2,
+                    ),
+                  ),
+
+                  const SizedBox(height: 20),
+
+                  // 💰 Saldo + ojo
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -76,7 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
                     ],
                   ),
 
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 5),
 
                   Text(
                     verSaldo ? "\$ 5,000,000" : "******",
@@ -86,13 +127,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       fontWeight: FontWeight.bold,
                     ),
                   ),
+
+                  const SizedBox(height: 10),
+
+                  // 📅 Fecha
+                  const Text(
+                    "Válido hasta 12/28",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                 ],
               ),
             ),
 
             const SizedBox(height: 30),
 
-            // ⚙️ Acciones
+            // ⚙️ BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -104,7 +153,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // 📄 Movimientos
+            // 📄 MOVIMIENTOS
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -145,7 +194,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 Botones funcionales
+  // 🔹 BOTONES FUNCIONALES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
