@@ -6,13 +6,16 @@ class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+ State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
 
   bool verSaldo = true;
   double saldo = 5000000;
+
+  // 🔥 LISTA DINÁMICA DE MOVIMIENTOS
+  List<String> movimientos = [];
 
   @override
   Widget build(BuildContext context) {
@@ -153,29 +156,22 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
+            // 🔥 LISTA DINÁMICA
             Expanded(
-              child: ListView(
-                children: const [
-                  ListTile(
-                    leading: Icon(Icons.arrow_downward, color: Colors.green),
-                    title: Text("Ingreso"),
-                    subtitle: Text("Salario"),
-                    trailing: Text("+\$2,000,000"),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.arrow_upward, color: Colors.red),
-                    title: Text("Pago"),
-                    subtitle: Text("Servicios"),
-                    trailing: Text("-\$200,000"),
-                  ),
-                  ListTile(
-                    leading: Icon(Icons.arrow_upward, color: Colors.red),
-                    title: Text("Transferencia"),
-                    subtitle: Text("A Juan"),
-                    trailing: Text("-\$150,000"),
-                  ),
-                ],
-              ),
+              child: movimientos.isEmpty
+                  ? const Center(
+                      child: Text("No hay movimientos aún"),
+                    )
+                  : ListView.builder(
+                      itemCount: movimientos.length,
+                      itemBuilder: (context, index) {
+                        return ListTile(
+                          leading: const Icon(Icons.arrow_upward, color: Colors.red),
+                          title: const Text("Transferencia"),
+                          subtitle: Text(movimientos[index]),
+                        );
+                      },
+                    ),
             ),
           ],
         ),
@@ -183,42 +179,47 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 BOTONES (CORREGIDO)
+  // 🔹 BOTONES FUNCIONALES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
         GestureDetector(
           onTap: () async {
+
+            // 🔥 TRANSFERIR
             if (texto == "Transferir") {
 
-              final nuevoSaldo = await Navigator.push(
+              final resultado = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransferenciaScreen(saldo: saldo),
                 ),
               );
 
-              if (nuevoSaldo != null) {
+              if (resultado != null) {
                 setState(() {
-                  saldo = nuevoSaldo;
+                  saldo = resultado["saldo"];
+                  movimientos.add(resultado["movimiento"]);
                 });
               }
 
-            } else if (texto == "Cuenta") {
+            }
 
+            // 📄 MOVIMIENTOS (pantalla aparte si quieres)
+            else if (texto == "Cuenta") {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MovimientosScreen(),
                 ),
               );
+            }
 
-            } else {
-
+            // 🚧 OTROS
+            else {
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("$texto en construcción")),
               );
-
             }
           },
           child: CircleAvatar(
