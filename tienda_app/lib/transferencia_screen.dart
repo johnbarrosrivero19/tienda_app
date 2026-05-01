@@ -45,14 +45,14 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
     double nuevoSaldo = widget.saldo - monto;
 
-    // ✅ MENSAJE DE ÉXITO
+    //  MENSAJE DE ÉXITO
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text("Transferencia a $nombre realizada ✔"),
       ),
     );
 
-    // 🔁 REGRESAR CON NUEVO SALDO
+    //  REGRESAR CON NUEVO SALDO
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pop(context, nuevoSaldo);
     });
@@ -71,7 +71,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         child: Column(
           children: [
 
-            // 💳 SALDO ACTUAL
+            //  SALDO ACTUAL
             Text(
               "Saldo disponible: \$${widget.saldo.toStringAsFixed(0)}",
               style: const TextStyle(
@@ -82,7 +82,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 30),
 
-            // 🔢 CUENTA
+            //  CUENTA
             TextField(
               controller: cuentaController,
               keyboardType: TextInputType.number,
@@ -109,7 +109,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 15),
 
-            // 💰 MONTO
+            //  MONTO
             TextField(
               controller: montoController,
               keyboardType: TextInputType.number,
@@ -123,7 +123,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 25),
 
-            // 🔘 BOTÓN
+            //  BOTÓN
             ElevatedButton(
               onPressed: realizarTransferencia,
               style: ElevatedButton.styleFrom(

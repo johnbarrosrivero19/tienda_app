@@ -15,7 +15,7 @@ class _HomeScreenState extends State<HomeScreen> {
   bool verSaldo = true;
   double saldo = 5000000;
 
-  // 🔥 LISTA DINÁMICA DE MOVIMIENTOS
+  //  LISTA DINÁMICA DE MOVIMIENTOS
   List<String> movimientos = [];
 
   @override
@@ -39,18 +39,18 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
 
-            // 👤 Saludo
+            //  Saludo
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Hola, Usuario 👋",
+                "Hola, Usuario",
                 style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 💳 TARJETA
+            //  TARJETA
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -134,7 +134,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // 🔘 BOTONES
+            //  BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -146,7 +146,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // 📄 MOVIMIENTOS
+            //  MOVIMIENTOS
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -206,7 +206,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             }
 
-            // 📄 MOVIMIENTOS (pantalla aparte si quieres)
+            //  MOVIMIENTOS (pantalla aparte si quieres)
             else if (texto == "Cuenta") {
               Navigator.push(
                 context,
