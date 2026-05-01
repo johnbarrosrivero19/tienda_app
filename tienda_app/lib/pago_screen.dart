@@ -12,6 +12,7 @@ class PagoScreen extends StatefulWidget {
 class _PagoScreenState extends State<PagoScreen> {
 
   String servicio = "Luz";
+
   final TextEditingController referenciaController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
@@ -19,6 +20,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
     double? monto = double.tryParse(montoController.text);
 
+    // 🔴 VALIDACIONES
     if (monto == null || monto <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Monto inválido")),
@@ -35,10 +37,12 @@ class _PagoScreenState extends State<PagoScreen> {
 
     double nuevoSaldo = widget.saldo - monto;
 
+    // MENSAJE
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Pago de $servicio realizado ✔")),
     );
 
+    // DEVOLVER DATOS AL HOME
     Future.delayed(const Duration(seconds: 1), () {
       Navigator.pop(context, {
         "saldo": nuevoSaldo,
@@ -60,15 +64,19 @@ class _PagoScreenState extends State<PagoScreen> {
         child: Column(
           children: [
 
+            // 💰 SALDO
             Text(
-              "Saldo: \$${widget.saldo.toStringAsFixed(0)}",
-              style: const TextStyle(fontWeight: FontWeight.bold),
+              "Saldo disponible: \$${widget.saldo.toStringAsFixed(0)}",
+              style: const TextStyle(
+                fontSize: 18,
+                fontWeight: FontWeight.bold,
+              ),
             ),
 
-            const SizedBox(height: 20),
+            const SizedBox(height: 25),
 
-            // 🔽 SERVICIO
-            DropdownButtonFormField(
+            //  SERVICIO
+            DropdownButtonFormField<String>(
               value: servicio,
               items: const [
                 DropdownMenuItem(value: "Luz", child: Text("Luz")),
@@ -80,20 +88,24 @@ class _PagoScreenState extends State<PagoScreen> {
                   servicio = value!;
                 });
               },
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Servicio",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
 
             const SizedBox(height: 15),
 
-            // 🔢 REFERENCIA
+            // REFERENCIA
             TextField(
               controller: referenciaController,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Referencia (opcional)",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
 
@@ -103,18 +115,25 @@ class _PagoScreenState extends State<PagoScreen> {
             TextField(
               controller: montoController,
               keyboardType: TextInputType.number,
-              decoration: const InputDecoration(
+              decoration: InputDecoration(
                 labelText: "Monto",
-                border: OutlineInputBorder(),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
             ),
 
             const SizedBox(height: 25),
 
+            // BOTÓN PAGAR
             ElevatedButton(
               onPressed: realizarPago,
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.orange,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 40,
+                  vertical: 15,
+                ),
               ),
               child: const Text("Pagar"),
             ),

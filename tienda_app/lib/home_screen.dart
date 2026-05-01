@@ -168,7 +168,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       itemBuilder: (context, index) {
                         return ListTile(
                           leading: const Icon(Icons.arrow_upward, color: Colors.red),
-                          title: const Text("Transferencia"),
+                          title: const Text("Movimiento"),
                           subtitle: Text(movimientos[index]),
                         );
                       },
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
         GestureDetector(
           onTap: () async {
 
-            // 🔥 TRANSFERIR
+            // 🔵 TRANSFERIR
             if (texto == "Transferir") {
 
               final resultado = await Navigator.push(
@@ -203,10 +203,27 @@ class _HomeScreenState extends State<HomeScreen> {
                   movimientos.add(resultado["movimiento"]);
                 });
               }
-
             }
 
-            //  MOVIMIENTOS (pantalla aparte si quieres)
+            // 🟠 PAGAR (🔥 LO NUEVO)
+            else if (texto == "Pagar") {
+
+              final resultado = await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => PagoScreen(saldo: saldo),
+                ),
+              );
+
+              if (resultado != null) {
+                setState(() {
+                  saldo = resultado["saldo"];
+                  movimientos.add(resultado["movimiento"]);
+                });
+              }
+            }
+
+            // 🟢 CUENTA
             else if (texto == "Cuenta") {
               Navigator.push(
                 context,
