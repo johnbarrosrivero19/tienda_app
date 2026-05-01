@@ -157,7 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            // 🔥 LISTA DINÁMICA
+            //  LISTA DINÁMICA
             Expanded(
               child: movimientos.isEmpty
                   ? const Center(
@@ -187,7 +187,7 @@ class _HomeScreenState extends State<HomeScreen> {
         GestureDetector(
           onTap: () async {
 
-            // 🔵 TRANSFERIR
+            //  TRANSFERIR
             if (texto == "Transferir") {
 
               final resultado = await Navigator.push(
