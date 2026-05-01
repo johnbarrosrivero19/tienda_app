@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'transferencia_screen.dart';
 import 'movimientos_screen.dart';
 import 'pago_screen.dart';
+import 'registro_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
