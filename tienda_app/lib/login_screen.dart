@@ -10,19 +10,62 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+
+  // 🔥 FUNCIÓN LOGIN CON PERSISTENCIA
+  void loginUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    String? usuarioGuardado = prefs.getString("usuario");
+    String? passwordGuardado = prefs.getString("password");
+
+    String usuario = usuarioController.text;
+    String password = passwordController.text;
+
+    // VALIDAR CAMPOS
+    if (usuario.isEmpty || password.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Todos los campos son obligatorios")),
+      );
+      return;
+    }
+
+    // VALIDAR DATOS GUARDADOS
+    if (usuario == usuarioGuardado && password == passwordGuardado) {
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login correcto")),
+      );
+
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Usuario o contraseña incorrectos")),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(58.0),
-        decoration: const BoxDecoration(color: Colors.blue),
+        decoration: const BoxDecoration(
+          color: Colors.blue,
+        ),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
+
               const Text(
                 'Login',
                 style: TextStyle(
@@ -31,6 +74,7 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
+
               const SizedBox(height: 20),
 
               TextField(
@@ -63,41 +107,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: () {
-                  String usuario = usuarioController.text;
-                  String password = passwordController.text;
-
-                  // 1. Validar campos vacíos
-                  if (usuario.isEmpty || password.isEmpty) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Todos los campos son obligatorios"),
-                      ),
-                    );
-                  }
-                  // 2. Validar credenciales correctas
-                  else if (usuario == "admin" && password == "1234") {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text("Login correcto")),
-                    );
-
-                    // 3. Navegar a la pantalla principal
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const HomeScreen(),
-                      ),
-                    );
-                  }
-                  // 4. Datos incorrectos
-                  else {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text("Usuario o contraseña incorrectos"),
-                      ),
-                    );
-                  }
-                },
+                onPressed: loginUsuario, // 🔥 AQUÍ LLAMAMOS LA FUNCIÓN
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue,
