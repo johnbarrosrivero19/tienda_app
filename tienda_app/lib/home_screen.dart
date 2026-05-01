@@ -67,7 +67,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  // 🏦 Encabezado
+                  //  Encabezado
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
