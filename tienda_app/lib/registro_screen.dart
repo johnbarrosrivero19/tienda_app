@@ -9,25 +9,28 @@ class RegistroScreen extends StatefulWidget {
 }
 
 class _RegistroScreenState extends State<RegistroScreen> {
-
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  void registrarUsuario() {
+  void registrarUsuario() async {
+    final prefs = await SharedPreferences.getInstance();
 
     // VALIDACIONES
     if (nombreController.text.isEmpty ||
         usuarioController.text.isEmpty ||
         passwordController.text.isEmpty) {
-
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Todos los campos son obligatorios")),
       );
       return;
     }
 
-    // SIMULACIÓN DE REGISTRO
+    // 🔥 GUARDAR DATOS (PERSISTENCIA)
+    await prefs.setString("usuario", usuarioController.text);
+    await prefs.setString("password", passwordController.text);
+
+    // MENSAJE
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(content: Text("Usuario registrado correctamente")),
     );
@@ -50,13 +53,9 @@ class _RegistroScreenState extends State<RegistroScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             const Text(
               "Crear cuenta",
-              style: TextStyle(
-                fontSize: 24,
-                fontWeight: FontWeight.bold,
-              ),
+              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 25),
