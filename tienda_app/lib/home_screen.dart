@@ -10,6 +10,7 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
 
   bool verSaldo = true;
+  double saldo = 5000000;
 
   @override
   Widget build(BuildContext context) {
@@ -120,7 +121,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 5),
 
                   Text(
-                    verSaldo ? "\$ 5,000,000" : "******",
+                    verSaldo ? "\$ ${saldo.toStringAsFixed(0)}" : "******"
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
