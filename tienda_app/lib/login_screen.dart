@@ -10,7 +10,6 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
-
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
@@ -34,18 +33,14 @@ class _LoginScreenState extends State<LoginScreen> {
 
     // VALIDAR DATOS GUARDADOS
     if (usuario == usuarioGuardado && password == passwordGuardado) {
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login correcto")),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Login correcto")));
 
       Navigator.push(
         context,
-        MaterialPageRoute(
-          builder: (context) => const HomeScreen(),
-        ),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Usuario o contraseña incorrectos")),
@@ -58,14 +53,11 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       body: Container(
         padding: const EdgeInsets.all(58.0),
-        decoration: const BoxDecoration(
-          color: Colors.blue,
-        ),
+        decoration: const BoxDecoration(color: Colors.blue),
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               const Text(
                 'Login',
                 style: TextStyle(
