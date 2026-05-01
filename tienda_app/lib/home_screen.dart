@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'transferencia_screen.dart';
+import 'movimientos_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -22,7 +24,7 @@ class _HomeScreenState extends State<HomeScreen> {
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () {
-              Navigator.pop(context); // volver al login
+              Navigator.pop(context);
             },
           )
         ],
@@ -44,30 +46,20 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            // 💳 TARJETA DE SALDO PRO
+            // 💳 TARJETA
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Colors.blue, Colors.indigo],
-                  begin: Alignment.topLeft,
-                  end: Alignment.bottomRight,
                 ),
                 borderRadius: BorderRadius.circular(20),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black26,
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  )
-                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
 
-                  //  Encabezado
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -84,19 +76,16 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 20),
 
-                  // 💳 Número de cuenta
                   const Text(
                     "**** **** **** 1234",
                     style: TextStyle(
                       color: Colors.white,
                       fontSize: 18,
-                      letterSpacing: 2,
                     ),
                   ),
 
                   const SizedBox(height: 20),
 
-                  // 💰 Saldo + ojo
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: [
@@ -121,7 +110,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 5),
 
                   Text(
-                    verSaldo ? "\$ ${saldo.toStringAsFixed(0)}" : "******"
+                    verSaldo ? "\$ ${saldo.toStringAsFixed(0)}" : "******",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -131,7 +120,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 10),
 
-                  // 📅 Fecha
                   const Text(
                     "Válido hasta 12/28",
                     style: TextStyle(color: Colors.white70),
@@ -142,7 +130,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // ⚙️ BOTONES
+            // 🔘 BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -195,15 +183,31 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 BOTONES FUNCIONALES
+  // 🔹 BOTONES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
         GestureDetector(
           onTap: () {
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text("$texto en construcción")),
-            );
+            if (texto == "Transferir") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => TransferenciaScreen(saldo: saldo),
+                ),
+              );
+            } else if (texto == "Cuenta") {
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => const MovimientosScreen(),
+                ),
+              );
+            } else {
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("$texto en construcción")),
+              );
+            }
           },
           child: CircleAvatar(
             radius: 30,
