@@ -183,30 +183,42 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 BOTONES
+  // 🔹 BOTONES (CORREGIDO)
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
         GestureDetector(
-          onTap: () {
+          onTap: () async {
             if (texto == "Transferir") {
-              Navigator.push(
+
+              final nuevoSaldo = await Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => TransferenciaScreen(saldo: saldo),
                 ),
               );
+
+              if (nuevoSaldo != null) {
+                setState(() {
+                  saldo = nuevoSaldo;
+                });
+              }
+
             } else if (texto == "Cuenta") {
+
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MovimientosScreen(),
                 ),
               );
+
             } else {
+
               ScaffoldMessenger.of(context).showSnackBar(
                 SnackBar(content: Text("$texto en construcción")),
               );
+
             }
           },
           child: CircleAvatar(
