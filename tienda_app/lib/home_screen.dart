@@ -1,26 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/banco_provider.dart';
+
 import 'transferencia_screen.dart';
 import 'movimientos_screen.dart';
 import 'pago_screen.dart';
-import 'registro_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
 
   @override
- State<HomeScreen> createState() => _HomeScreenState();
+  State<HomeScreen> createState() => _HomeScreenState();
 }
 
 class _HomeScreenState extends State<HomeScreen> {
 
   bool verSaldo = true;
-  double saldo = 5000000;
-
-  //  LISTA DINÁMICA DE MOVIMIENTOS
-  List<String> movimientos = [];
 
   @override
   Widget build(BuildContext context) {
+
+    final banco = Provider.of<BancoProvider>(context);
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Banco JB"),
@@ -40,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
 
-            //  Saludo
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -51,7 +51,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            //  TARJETA
+            // 🔥 TARJETA
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -114,8 +114,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 5),
 
+                  // 🔥 SALDO DESDE PROVIDER
                   Text(
-                    verSaldo ? "\$ ${saldo.toStringAsFixed(0)}" : "******",
+                    verSaldo
+                        ? "\$ ${banco.saldo.toStringAsFixed(0)}"
+                        : "******",
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
@@ -135,7 +138,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            //  BOTONES
+            // 🔥 BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -147,7 +150,6 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            //  MOVIMIENTOS
             const Align(
               alignment: Alignment.centerLeft,
               child: Text(
@@ -158,19 +160,19 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            //  LISTA DINÁMICA
+            // 🔥 LISTA DESDE PROVIDER
             Expanded(
-              child: movimientos.isEmpty
+              child: banco.movimientos.isEmpty
                   ? const Center(
                       child: Text("No hay movimientos aún"),
                     )
                   : ListView.builder(
-                      itemCount: movimientos.length,
+                      itemCount: banco.movimientos.length,
                       itemBuilder: (context, index) {
                         return ListTile(
                           leading: const Icon(Icons.arrow_upward, color: Colors.red),
                           title: const Text("Movimiento"),
-                          subtitle: Text(movimientos[index]),
+                          subtitle: Text(banco.movimientos[index]),
                         );
                       },
                     ),
@@ -181,63 +183,37 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔹 BOTONES FUNCIONALES
+  // 🔥 BOTONES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
         GestureDetector(
-          onTap: () async {
+          onTap: () {
 
-            //  TRANSFERIR
             if (texto == "Transferir") {
-
-              final resultado = await Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => TransferenciaScreen(saldo: saldo),
+                  builder: (context) => const TransferenciaScreen(),
                 ),
               );
-
-              if (resultado != null) {
-                setState(() {
-                  saldo = resultado["saldo"];
-                  movimientos.add(resultado["movimiento"]);
-                });
-              }
             }
 
-            // 🟠 PAGAR (🔥 LO NUEVO)
             else if (texto == "Pagar") {
-
-              final resultado = await Navigator.push(
+              Navigator.push(
                 context,
                 MaterialPageRoute(
-                  builder: (context) => PagoScreen(saldo: saldo),
+                  builder: (context) => const PagoScreen(),
                 ),
               );
-
-              if (resultado != null) {
-                setState(() {
-                  saldo = resultado["saldo"];
-                  movimientos.add(resultado["movimiento"]);
-                });
-              }
             }
 
-            // 🟢 CUENTA
             else if (texto == "Cuenta") {
               Navigator.push(
                 context,
                 MaterialPageRoute(
                   builder: (context) => const MovimientosScreen(),
                 ),
-              );
-            }
-
-            // 🚧 OTROS
-            else {
-              ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("$texto en construcción")),
               );
             }
           },
