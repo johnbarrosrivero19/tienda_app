@@ -1,8 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'login_screen.dart';
 import 'registro_screen.dart';
 
-void main() {
+void main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await Firebase.initializeApp(
+    options: const FirebaseOptions(
+      apiKey: "AIzaSyDuaedUuAsjEaivz4djozjadxkocURjQCw",
+      authDomain: "banco-jb.firebaseapp.com",
+      projectId: "banco-jb",
+      storageBucket: "banco-jb.firebasestorage.app",
+      messagingSenderId: "172822252371",
+      appId: "1:172822252371:web:0c6b0b489d808416d86fa6",
+    ),
+  );
+
   runApp(const MyApp());
 }
 
