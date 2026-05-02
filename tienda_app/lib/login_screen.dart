@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -13,15 +13,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // 🔥 FUNCIÓN LOGIN CON PERSISTENCIA
+  // 🔥 LOGIN CON FIREBASE
   void loginUsuario() async {
-    final prefs = await SharedPreferences.getInstance();
 
-    String? usuarioGuardado = prefs.getString("usuario");
-    String? passwordGuardado = prefs.getString("password");
-
-    String usuario = usuarioController.text;
-    String password = passwordController.text;
+    String usuario = usuarioController.text.trim();
+    String password = passwordController.text.trim();
 
     // VALIDAR CAMPOS
     if (usuario.isEmpty || password.isEmpty) {
@@ -31,17 +27,22 @@ class _LoginScreenState extends State<LoginScreen> {
       return;
     }
 
-    // VALIDAR DATOS GUARDADOS
-    if (usuario == usuarioGuardado && password == passwordGuardado) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Login correcto")));
+    try {
+      await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: usuario,
+        password: password,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Login correcto")),
+      );
 
       Navigator.push(
         context,
         MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
-    } else {
+
+    } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Usuario o contraseña incorrectos")),
       );
@@ -72,7 +73,7 @@ class _LoginScreenState extends State<LoginScreen> {
               TextField(
                 controller: usuarioController,
                 decoration: InputDecoration(
-                  hintText: 'Usuario',
+                  hintText: 'Correo (usuario)',
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -99,7 +100,7 @@ class _LoginScreenState extends State<LoginScreen> {
               const SizedBox(height: 20),
 
               ElevatedButton(
-                onPressed: loginUsuario, // 🔥 AQUÍ LLAMAMOS LA FUNCIÓN
+                onPressed: loginUsuario,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.white,
                   foregroundColor: Colors.blue,

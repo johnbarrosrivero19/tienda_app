@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
@@ -14,31 +14,36 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   void registrarUsuario() async {
-    final prefs = await SharedPreferences.getInstance();
+
+    String nombre = nombreController.text.trim();
+    String usuario = usuarioController.text.trim();
+    String password = passwordController.text.trim();
 
     // VALIDACIONES
-    if (nombreController.text.isEmpty ||
-        usuarioController.text.isEmpty ||
-        passwordController.text.isEmpty) {
+    if (nombre.isEmpty || usuario.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Todos los campos son obligatorios")),
       );
       return;
     }
 
-    // 🔥 GUARDAR DATOS (PERSISTENCIA)
-    await prefs.setString("usuario", usuarioController.text);
-    await prefs.setString("password", passwordController.text);
+    try {
+      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+        email: usuario,
+        password: password,
+      );
 
-    // MENSAJE
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text("Usuario registrado correctamente")),
-    );
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Usuario registrado correctamente")),
+      );
 
-    // REGRESAR AL LOGIN
-    Future.delayed(const Duration(seconds: 1), () {
       Navigator.pop(context);
-    });
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error al registrar usuario")),
+      );
+    }
   }
 
   @override
@@ -73,11 +78,11 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
             const SizedBox(height: 15),
 
-            // USUARIO
+            // USUARIO (EMAIL)
             TextField(
               controller: usuarioController,
               decoration: InputDecoration(
-                labelText: "Usuario",
+                labelText: "Correo (usuario)",
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(10),
                 ),
