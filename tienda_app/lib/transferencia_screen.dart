@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/banco_provider.dart';
 
 class TransferenciaScreen extends StatefulWidget {
-  final double saldo;
-
-  const TransferenciaScreen({super.key, required this.saldo});
+  const TransferenciaScreen({super.key});
 
   @override
   State<TransferenciaScreen> createState() => _TransferenciaScreenState();
@@ -17,11 +17,13 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
   void realizarTransferencia() {
 
+    final banco = context.read<BancoProvider>();
+
     String cuenta = cuentaController.text;
     String nombre = nombreController.text;
     double? monto = double.tryParse(montoController.text);
 
-    // 🔴 VALIDACIONES
+    // VALIDACIONES
     if (cuenta.isEmpty || nombre.isEmpty || monto == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Todos los campos son obligatorios")),
@@ -36,30 +38,28 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
       return;
     }
 
-    if (monto > widget.saldo) {
+    if (monto > banco.saldo) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Saldo insuficiente")),
       );
       return;
     }
 
-    double nuevoSaldo = widget.saldo - monto;
+    // 🔥 USAR PROVIDER
+    banco.transferir(monto, nombre);
 
-    //  MENSAJE DE ÉXITO
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("Transferencia a $nombre realizada ✔"),
-      ),
+      SnackBar(content: Text("Transferencia a $nombre realizada ✔")),
     );
 
-    //  REGRESAR CON NUEVO SALDO
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context, nuevoSaldo);
-    });
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final banco = context.watch<BancoProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Transferencia"),
@@ -71,18 +71,13 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         child: Column(
           children: [
 
-            //  SALDO ACTUAL
             Text(
-              "Saldo disponible: \$${widget.saldo.toStringAsFixed(0)}",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              "Saldo disponible: \$${banco.saldo.toStringAsFixed(0)}",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 30),
 
-            //  CUENTA
             TextField(
               controller: cuentaController,
               keyboardType: TextInputType.number,
@@ -96,7 +91,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 15),
 
-            // 👤 NOMBRE
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -109,7 +103,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 15),
 
-            //  MONTO
             TextField(
               controller: montoController,
               keyboardType: TextInputType.number,
@@ -123,7 +116,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 25),
 
-            //  BOTÓN
             ElevatedButton(
               onPressed: realizarTransferencia,
               style: ElevatedButton.styleFrom(

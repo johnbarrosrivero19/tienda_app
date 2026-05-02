@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_core/firebase_core.dart';
+import 'package:provider/provider.dart';
+
+import 'providers/banco_provider.dart';
 import 'login_screen.dart';
 import 'registro_screen.dart';
 
@@ -17,7 +20,12 @@ void main() async {
     ),
   );
 
-  runApp(const MyApp());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => BancoProvider(),
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {

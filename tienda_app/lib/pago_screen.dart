@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'providers/banco_provider.dart';
 
 class PagoScreen extends StatefulWidget {
-  final double saldo;
-
-  const PagoScreen({super.key, required this.saldo});
+  const PagoScreen({super.key});
 
   @override
   State<PagoScreen> createState() => _PagoScreenState();
@@ -18,9 +18,10 @@ class _PagoScreenState extends State<PagoScreen> {
 
   void realizarPago() {
 
+    final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
-    // 🔴 VALIDACIONES
+    // VALIDACIONES
     if (monto == null || monto <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Monto inválido")),
@@ -28,31 +29,28 @@ class _PagoScreenState extends State<PagoScreen> {
       return;
     }
 
-    if (monto > widget.saldo) {
+    if (monto > banco.saldo) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Saldo insuficiente")),
       );
       return;
     }
 
-    double nuevoSaldo = widget.saldo - monto;
+    // 🔥 USAR PROVIDER
+    banco.pagar(monto, servicio);
 
-    // MENSAJE
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text("Pago de $servicio realizado ✔")),
     );
 
-    // DEVOLVER DATOS AL HOME
-    Future.delayed(const Duration(seconds: 1), () {
-      Navigator.pop(context, {
-        "saldo": nuevoSaldo,
-        "movimiento": "Pago $servicio -\$${monto.toStringAsFixed(0)}"
-      });
-    });
+    Navigator.pop(context);
   }
 
   @override
   Widget build(BuildContext context) {
+
+    final banco = context.watch<BancoProvider>();
+
     return Scaffold(
       appBar: AppBar(
         title: const Text("Pagar servicios"),
@@ -64,18 +62,13 @@ class _PagoScreenState extends State<PagoScreen> {
         child: Column(
           children: [
 
-            // 💰 SALDO
             Text(
-              "Saldo disponible: \$${widget.saldo.toStringAsFixed(0)}",
-              style: const TextStyle(
-                fontSize: 18,
-                fontWeight: FontWeight.bold,
-              ),
+              "Saldo disponible: \$${banco.saldo.toStringAsFixed(0)}",
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 25),
 
-            //  SERVICIO
             DropdownButtonFormField<String>(
               value: servicio,
               items: const [
@@ -98,7 +91,6 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 15),
 
-            // REFERENCIA
             TextField(
               controller: referenciaController,
               decoration: InputDecoration(
@@ -111,7 +103,6 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 15),
 
-            // 💰 MONTO
             TextField(
               controller: montoController,
               keyboardType: TextInputType.number,
@@ -125,7 +116,6 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 25),
 
-            // BOTÓN PAGAR
             ElevatedButton(
               onPressed: realizarPago,
               style: ElevatedButton.styleFrom(
