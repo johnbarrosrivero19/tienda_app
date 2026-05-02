@@ -14,13 +14,11 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   bool verSaldo = true;
 
   @override
   Widget build(BuildContext context) {
-
-    final banco = Provider.of<BancoProvider>(context);
+    final banco = context.watch<BancoProvider>();
 
     return Scaffold(
       appBar: AppBar(
@@ -114,7 +112,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 5),
 
-                  // 🔥 SALDO DESDE PROVIDER
+                  //  SALDO DESDE PROVIDER
                   Text(
                     verSaldo
                         ? "\$ ${banco.saldo.toStringAsFixed(0)}"
@@ -138,7 +136,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // 🔥 BOTONES
+            //  BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -160,7 +158,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            // 🔥 LISTA DESDE PROVIDER
+            //  LISTA DESDE PROVIDER
             Expanded(
               child: banco.movimientos.isEmpty
                   ? const Center(
@@ -169,10 +167,20 @@ class _HomeScreenState extends State<HomeScreen> {
                   : ListView.builder(
                       itemCount: banco.movimientos.length,
                       itemBuilder: (context, index) {
+
+                        final movimiento = banco.movimientos[index];
+
                         return ListTile(
-                          leading: const Icon(Icons.arrow_upward, color: Colors.red),
+                          leading: Icon(
+                            movimiento.contains("Transferencia")
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: movimiento.contains("-")
+                                ? Colors.red
+                                : Colors.green,
+                          ),
                           title: const Text("Movimiento"),
-                          subtitle: Text(banco.movimientos[index]),
+                          subtitle: Text(movimiento),
                         );
                       },
                     ),
@@ -183,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  // 🔥 BOTONES
+  //  BOTONES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
