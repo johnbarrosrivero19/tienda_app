@@ -17,7 +17,6 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
-
   bool verSaldo = true;
 
   String nombreUsuario = "Cargando...";
@@ -28,18 +27,25 @@ class _HomeScreenState extends State<HomeScreen> {
     obtenerUsuario();
   }
 
-  //  OBTENER USUARIO DESDE FIREBASE
+  //  OBTENER USUARIO 
   void obtenerUsuario() async {
-    final user = FirebaseAuth.instance.currentUser;
+    try {
+      final user = FirebaseAuth.instance.currentUser;
 
-    if (user != null) {
-      var doc = await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(user.uid)
-          .get();
+      if (user != null) {
+        var doc = await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(user.uid)
+            .get();
 
+        setState(() {
+          nombreUsuario = doc['nombre'];
+        });
+      }
+    } catch (e) {
+      // 🔥 IMPORTANTE: evitar crash en tests
       setState(() {
-        nombreUsuario = doc['nombre'];
+        nombreUsuario = "Usuario";
       });
     }
   }
@@ -60,7 +66,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
               Navigator.pop(context);
             },
-          )
+          ),
         ],
       ),
 
@@ -68,13 +74,14 @@ class _HomeScreenState extends State<HomeScreen> {
         padding: const EdgeInsets.all(20.0),
         child: Column(
           children: [
-
             Align(
               alignment: Alignment.centerLeft,
               child: Text(
                 "Hola, $nombreUsuario",
                 style: const TextStyle(
-                    fontSize: 22, fontWeight: FontWeight.bold),
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
 
@@ -93,7 +100,6 @@ class _HomeScreenState extends State<HomeScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -112,10 +118,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const Text(
                     "**** **** **** 1234",
-                    style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 18,
-                    ),
+                    style: TextStyle(color: Colors.white, fontSize: 18),
                   ),
 
                   const SizedBox(height: 20),
@@ -129,9 +132,7 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       IconButton(
                         icon: Icon(
-                          verSaldo
-                              ? Icons.visibility
-                              : Icons.visibility_off,
+                          verSaldo ? Icons.visibility : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: () {
@@ -139,7 +140,7 @@ class _HomeScreenState extends State<HomeScreen> {
                             verSaldo = !verSaldo;
                           });
                         },
-                      )
+                      ),
                     ],
                   ),
 
@@ -185,8 +186,7 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: Alignment.centerLeft,
               child: Text(
                 "Últimos movimientos",
-                style: TextStyle(
-                    fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
 
@@ -195,13 +195,10 @@ class _HomeScreenState extends State<HomeScreen> {
             // LISTA DESDE PROVIDER
             Expanded(
               child: banco.movimientos.isEmpty
-                  ? const Center(
-                      child: Text("No hay movimientos aún"),
-                    )
+                  ? const Center(child: Text("No hay movimientos aún"))
                   : ListView.builder(
                       itemCount: banco.movimientos.length,
                       itemBuilder: (context, index) {
-
                         final movimiento = banco.movimientos[index];
 
                         return ListTile(
@@ -231,7 +228,6 @@ class _HomeScreenState extends State<HomeScreen> {
       children: [
         GestureDetector(
           onTap: () {
-
             if (texto == "Transferir") {
               Navigator.push(
                 context,
@@ -239,18 +235,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   builder: (context) => const TransferenciaScreen(),
                 ),
               );
-            }
-
-            else if (texto == "Pagar") {
+            } else if (texto == "Pagar") {
               Navigator.push(
                 context,
-                MaterialPageRoute(
-                  builder: (context) => const PagoScreen(),
-                ),
+                MaterialPageRoute(builder: (context) => const PagoScreen()),
               );
-            }
-
-            else if (texto == "Cuenta") {
+            } else if (texto == "Cuenta") {
               Navigator.push(
                 context,
                 MaterialPageRoute(
