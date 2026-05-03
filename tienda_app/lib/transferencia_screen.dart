@@ -18,7 +18,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
-  // 🔥 GUARDAR MOVIMIENTO EN FIREBASE
+  //  GUARDAR MOVIMIENTO EN FIREBASE
   Future<void> guardarMovimiento(String nombre, double monto) async {
     final user = FirebaseAuth.instance.currentUser;
 
@@ -36,7 +36,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
     }
   }
 
-  // 🚀 TRANSFERENCIA COMPLETA
+  //  TRANSFERENCIA COMPLETA
   void realizarTransferencia() async {
 
     final banco = context.read<BancoProvider>();

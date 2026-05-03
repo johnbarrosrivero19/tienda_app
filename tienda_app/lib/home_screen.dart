@@ -28,7 +28,7 @@ class _HomeScreenState extends State<HomeScreen> {
     obtenerUsuario();
   }
 
-  // 🔥 OBTENER USUARIO DESDE FIREBASE
+  //  OBTENER USUARIO DESDE FIREBASE
   void obtenerUsuario() async {
     final user = FirebaseAuth.instance.currentUser;
 

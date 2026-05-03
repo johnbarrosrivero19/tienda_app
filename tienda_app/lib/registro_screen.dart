@@ -29,7 +29,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
     }
 
     try {
-      // 🔐 1. CREAR USUARIO EN FIREBASE AUTH
+      //  1. CREAR USUARIO EN FIREBASE AUTH
       UserCredential userCredential =
           await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: usuario,
@@ -38,7 +38,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
       String uid = userCredential.user!.uid;
 
-      // 🔥 2. GUARDAR DATOS EN FIRESTORE
+      //  2. GUARDAR DATOS EN FIRESTORE
       await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
         'nombre': nombre,
         'correo': usuario,
@@ -50,7 +50,7 @@ class _RegistroScreenState extends State<RegistroScreen> {
         const SnackBar(content: Text("Usuario registrado en Firebase 🚀")),
       );
 
-      // 🔄 REGRESAR AL LOGIN
+      //  REGRESAR AL LOGIN
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.pop(context);
       });

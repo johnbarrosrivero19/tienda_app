@@ -26,7 +26,7 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
-      // 🔐 LOGIN CON FIREBASE
+      //  LOGIN CON FIREBASE
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: usuario,
         password: password,
@@ -36,7 +36,7 @@ class _LoginScreenState extends State<LoginScreen> {
         const SnackBar(content: Text("Login correcto 🚀")),
       );
 
-      // 🚀 IR A HOME
+      //  IR A HOME
       Navigator.pushReplacement(
         context,
         MaterialPageRoute(

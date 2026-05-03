@@ -36,7 +36,7 @@ class _PagoScreenState extends State<PagoScreen> {
       return;
     }
 
-    // 🔥 USAR PROVIDER
+    //  USAR PROVIDER
     banco.pagar(monto, servicio);
 
     ScaffoldMessenger.of(context).showSnackBar(

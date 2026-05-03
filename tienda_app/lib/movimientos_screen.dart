@@ -28,7 +28,7 @@ class MovimientosScreen extends StatelessWidget {
 
               builder: (context, snapshot) {
 
-                // 🔄 Cargando
+                //  Cargando
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
@@ -38,7 +38,7 @@ class MovimientosScreen extends StatelessWidget {
                   return const Center(child: Text("Error al cargar datos"));
                 }
 
-                // 📭 Sin datos
+                //  Sin datos
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
                     child: Text("No hay movimientos aún"),
@@ -47,7 +47,7 @@ class MovimientosScreen extends StatelessWidget {
 
                 final movimientos = snapshot.data!.docs;
 
-                // 📋 Lista dinámica
+                //  Lista dinámica
                 return ListView.builder(
                   itemCount: movimientos.length,
                   itemBuilder: (context, index) {
