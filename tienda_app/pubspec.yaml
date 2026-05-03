@@ -17,10 +17,13 @@ dependencies:
   # Persistencia local
   shared_preferences: ^2.2.2
 
-  #  FIREBASE
+  # FIREBASE
   firebase_core: ^2.30.0
   firebase_auth: ^4.17.0
   cloud_firestore: ^4.15.0
+
+  # STATE MANAGEMENT (SOLUCIÓN A TU ERROR)
+  provider: ^6.1.2
 
 dev_dependencies:
   flutter_test:
