@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
@@ -28,20 +29,51 @@ class _RegistroScreenState extends State<RegistroScreen> {
     }
 
     try {
-      await FirebaseAuth.instance.createUserWithEmailAndPassword(
+      // 🔐 1. CREAR USUARIO EN FIREBASE AUTH
+      UserCredential userCredential =
+          await FirebaseAuth.instance.createUserWithEmailAndPassword(
         email: usuario,
         password: password,
       );
 
+      String uid = userCredential.user!.uid;
+
+      // 🔥 2. GUARDAR DATOS EN FIRESTORE
+      await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
+        'nombre': nombre,
+        'correo': usuario,
+        'uid': uid,
+        'fecha_registro': DateTime.now(),
+      });
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario registrado correctamente")),
+        const SnackBar(content: Text("Usuario registrado en Firebase 🚀")),
       );
 
-      Navigator.pop(context);
+      // 🔄 REGRESAR AL LOGIN
+      Future.delayed(const Duration(seconds: 1), () {
+        Navigator.pop(context);
+      });
+
+    } on FirebaseAuthException catch (e) {
+
+      String mensaje = "Error al registrar";
+
+      if (e.code == 'email-already-in-use') {
+        mensaje = "El correo ya está registrado";
+      } else if (e.code == 'invalid-email') {
+        mensaje = "Correo inválido";
+      } else if (e.code == 'weak-password') {
+        mensaje = "La contraseña es muy débil (mínimo 6 caracteres)";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensaje)),
+      );
 
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al registrar usuario")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
