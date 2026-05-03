@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 import 'transferencia_screen.dart';
 import 'movimientos_screen.dart';
 import 'pago_screen.dart';
@@ -14,7 +17,32 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+
   bool verSaldo = true;
+
+  String nombreUsuario = "Cargando...";
+
+  @override
+  void initState() {
+    super.initState();
+    obtenerUsuario();
+  }
+
+  // 🔥 OBTENER USUARIO DESDE FIREBASE
+  void obtenerUsuario() async {
+    final user = FirebaseAuth.instance.currentUser;
+
+    if (user != null) {
+      var doc = await FirebaseFirestore.instance
+          .collection('usuarios')
+          .doc(user.uid)
+          .get();
+
+      setState(() {
+        nombreUsuario = doc['nombre'];
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -27,7 +55,9 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
-            onPressed: () {
+            onPressed: () async {
+              await FirebaseAuth.instance.signOut();
+
               Navigator.pop(context);
             },
           )
@@ -39,17 +69,18 @@ class _HomeScreenState extends State<HomeScreen> {
         child: Column(
           children: [
 
-            const Align(
+            Align(
               alignment: Alignment.centerLeft,
               child: Text(
-                "Hola, Usuario",
-                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+                "Hola, $nombreUsuario",
+                style: const TextStyle(
+                    fontSize: 22, fontWeight: FontWeight.bold),
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // 🔥 TARJETA
+            // TARJETA
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -98,7 +129,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       IconButton(
                         icon: Icon(
-                          verSaldo ? Icons.visibility : Icons.visibility_off,
+                          verSaldo
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: () {
@@ -112,7 +145,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 5),
 
-                  //  SALDO DESDE PROVIDER
+                  // SALDO DESDE PROVIDER
                   Text(
                     verSaldo
                         ? "\$ ${banco.saldo.toStringAsFixed(0)}"
@@ -136,7 +169,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            //  BOTONES
+            // BOTONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -152,13 +185,14 @@ class _HomeScreenState extends State<HomeScreen> {
               alignment: Alignment.centerLeft,
               child: Text(
                 "Últimos movimientos",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                    fontSize: 18, fontWeight: FontWeight.bold),
               ),
             ),
 
             const SizedBox(height: 10),
 
-            //  LISTA DESDE PROVIDER
+            // LISTA DESDE PROVIDER
             Expanded(
               child: banco.movimientos.isEmpty
                   ? const Center(
@@ -191,7 +225,7 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  //  BOTONES
+  // BOTONES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
