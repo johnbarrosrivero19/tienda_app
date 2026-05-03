@@ -13,13 +13,11 @@ class _LoginScreenState extends State<LoginScreen> {
   final TextEditingController usuarioController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
 
-  // 🔥 LOGIN CON FIREBASE
   void loginUsuario() async {
-
     String usuario = usuarioController.text.trim();
     String password = passwordController.text.trim();
 
-    // VALIDAR CAMPOS
+    // VALIDACIÓN
     if (usuario.isEmpty || password.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Todos los campos son obligatorios")),
@@ -28,23 +26,45 @@ class _LoginScreenState extends State<LoginScreen> {
     }
 
     try {
+      // 🔐 LOGIN CON FIREBASE
       await FirebaseAuth.instance.signInWithEmailAndPassword(
         email: usuario,
         password: password,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Login correcto")),
+        const SnackBar(content: Text("Login correcto 🚀")),
       );
 
-      Navigator.push(
+      // 🚀 IR A HOME
+      Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const HomeScreen()),
+        MaterialPageRoute(
+          builder: (context) => const HomeScreen(),
+        ),
+      );
+
+    } on FirebaseAuthException catch (e) {
+
+      String mensaje = "Error al iniciar sesión";
+
+      if (e.code == 'user-not-found') {
+        mensaje = "Usuario no encontrado";
+      } else if (e.code == 'wrong-password') {
+        mensaje = "Contraseña incorrecta";
+      } else if (e.code == 'invalid-email') {
+        mensaje = "Correo inválido";
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(mensaje)),
       );
 
     } catch (e) {
+      print("ERROR LOGIN: $e");
+
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Usuario o contraseña incorrectos")),
+        SnackBar(content: Text("Error: $e")),
       );
     }
   }
@@ -67,13 +87,13 @@ class _LoginScreenState extends State<LoginScreen> {
                   fontWeight: FontWeight.bold,
                 ),
               ),
-
               const SizedBox(height: 20),
 
+              // USUARIO
               TextField(
                 controller: usuarioController,
                 decoration: InputDecoration(
-                  hintText: 'Correo (usuario)',
+                  hintText: 'Correo',
                   filled: true,
                   fillColor: Colors.white,
                   border: OutlineInputBorder(
@@ -84,6 +104,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 15),
 
+              // PASSWORD
               TextField(
                 controller: passwordController,
                 obscureText: true,
@@ -99,6 +120,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
               const SizedBox(height: 20),
 
+              // BOTÓN LOGIN
               ElevatedButton(
                 onPressed: loginUsuario,
                 style: ElevatedButton.styleFrom(
