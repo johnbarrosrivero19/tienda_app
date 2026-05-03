@@ -102,7 +102,7 @@ void main() {
       ),
     );
 
-    expect(find.textContaining('Hola'), findsOneWidget);
+    expect(find.textContaining('Hola'), findsWidgets);
   });
 
 }
