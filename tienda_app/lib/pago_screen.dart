@@ -127,7 +127,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 30),
 
-            // 🔥 FORMULARIO
+            //  FORMULARIO
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -175,7 +175,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
                   const SizedBox(height: 25),
 
-                  // 🔥 BOTÓN PRO
+                  //  BOTÓN PRO
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -203,7 +203,7 @@ class _PagoScreenState extends State<PagoScreen> {
     );
   }
 
-  // 🔥 INPUT STYLE GLOBAL
+  //  INPUT STYLE GLOBAL
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,

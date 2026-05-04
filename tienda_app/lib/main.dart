@@ -59,22 +59,14 @@ class Login extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-
               //  ICONO PROFESIONAL (evita error en tests)
-              const Icon(
-                Icons.account_balance,
-                size: 100,
-                color: Colors.blue,
-              ),
+              const Icon(Icons.account_balance, size: 100, color: Colors.blue),
 
               const SizedBox(height: 20),
 
               const Text(
                 "Banco JB",
-                style: TextStyle(
-                  fontSize: 28,
-                  fontWeight: FontWeight.bold,
-                ),
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
               ),
 
               const SizedBox(height: 10),
