@@ -22,8 +22,11 @@ dependencies:
   firebase_auth: ^4.17.0
   cloud_firestore: ^4.15.0
 
-  # STATE MANAGEMENT (SOLUCIÓN A TU ERROR)
+  # STATE MANAGEMENT
   provider: ^6.1.2
+
+  #  FORMATO MONEDA PROFESIONAL
+  intl: ^0.18.1
 
 dev_dependencies:
   flutter_test:
