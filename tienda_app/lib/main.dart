@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 import 'login_screen.dart';
 import 'registro_screen.dart';
+import 'theme/app_theme.dart'; //  IMPORTANTE
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -36,6 +37,10 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
       title: 'App Banco JB',
+
+      //  AQUÍ APLICAMOS EL TEMA GLOBAL
+      theme: AppTheme.lightTheme,
+
       home: const Login(),
     );
   }
@@ -47,30 +52,44 @@ class Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text("App Banco JB"),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
-        centerTitle: true,
-      ),
+      //  SIN AppBar para look más moderno
       body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Image.network(
-              'https://cdn-icons-png.flaticon.com/512/3135/3135715.png',
-              height: 180,
-            ),
-            const SizedBox(height: 20),
-            const Text(
-              "Bienvenido a App Banco",
-              style: TextStyle(fontSize: 32, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                ElevatedButton(
+        child: Padding(
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+
+              //  ICONO PROFESIONAL (evita error en tests)
+              const Icon(
+                Icons.account_balance,
+                size: 100,
+                color: Colors.blue,
+              ),
+
+              const SizedBox(height: 20),
+
+              const Text(
+                "Banco JB",
+                style: TextStyle(
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+
+              const SizedBox(height: 10),
+
+              const Text(
+                "Tu dinero seguro",
+                style: TextStyle(color: Colors.grey),
+              ),
+
+              const SizedBox(height: 40),
+
+              //  BOTÓN INGRESAR
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -79,14 +98,16 @@ class Login extends StatelessWidget {
                       ),
                     );
                   },
-                  style: ElevatedButton.styleFrom(
-                    backgroundColor: Colors.green,
-                    foregroundColor: Colors.white,
-                  ),
                   child: const Text("Ingresar"),
                 ),
-                const SizedBox(width: 10),
-                ElevatedButton(
+              ),
+
+              const SizedBox(height: 15),
+
+              //  BOTÓN REGISTRO
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
                   onPressed: () {
                     Navigator.push(
                       context,
@@ -97,13 +118,12 @@ class Login extends StatelessWidget {
                   },
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.orange,
-                    foregroundColor: Colors.white,
                   ),
                   child: const Text("Registrarse"),
                 ),
-              ],
-            ),
-          ],
+              ),
+            ],
+          ),
         ),
       ),
     );
