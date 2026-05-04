@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; // 💰 NUEVO
+import 'package:intl/intl.dart'; //  
 
 import 'providers/banco_provider.dart';
 import 'firebase_service.dart';
@@ -21,7 +21,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
   bool cargando = false;
 
-  // 💰 FORMATO MONEDA
+  //  FORMATO MONEDA
   String formatearMoneda(double valor) {
     final formato = NumberFormat.currency(
       locale: 'es_CO',
@@ -36,7 +36,7 @@ class _PagoScreenState extends State<PagoScreen> {
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
-    // 🔐 VALIDACIONES
+    //  VALIDACIONES
     if (monto == null || monto <= 0) {
       _error("Monto inválido");
       return;
@@ -52,7 +52,7 @@ class _PagoScreenState extends State<PagoScreen> {
       return;
     }
 
-    // 🔥 CONFIRMACIÓN PRO
+    //  CONFIRMACIÓN PRO
     bool? confirmar = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -92,10 +92,10 @@ class _PagoScreenState extends State<PagoScreen> {
     setState(() => cargando = true);
 
     try {
-      // 💰 ESTADO LOCAL
+      //  ESTADO LOCAL
       banco.pagar(monto, servicio);
 
-      // ☁️ FIREBASE
+      //  FIREBASE
       final service = FirebaseService();
       await service.guardarMovimiento(
         tipo: "Pago",
@@ -141,7 +141,7 @@ class _PagoScreenState extends State<PagoScreen> {
         child: Column(
           children: [
 
-            // 💳 CARD SALDO
+            //  CARD SALDO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -182,7 +182,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 30),
 
-            // 🧾 FORMULARIO
+            //  FORMULARIO
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
