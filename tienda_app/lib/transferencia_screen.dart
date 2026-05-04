@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_service.dart'; //  NUEVO
 
 class TransferenciaScreen extends StatefulWidget {
   const TransferenciaScreen({super.key});
@@ -18,25 +17,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
-  //  GUARDAR MOVIMIENTO EN FIREBASE
-  Future<void> guardarMovimiento(String nombre, double monto) async {
-    final user = FirebaseAuth.instance.currentUser;
-
-    if (user != null) {
-      await FirebaseFirestore.instance
-          .collection('usuarios')
-          .doc(user.uid)
-          .collection('movimientos')
-          .add({
-        'tipo': 'Transferencia',
-        'destinatario': nombre,
-        'monto': monto,
-        'fecha': Timestamp.now(),
-      });
-    }
-  }
-
-  //  TRANSFERENCIA COMPLETA
   void realizarTransferencia() async {
 
     final banco = context.read<BancoProvider>();
@@ -68,11 +48,16 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
     }
 
     try {
-      // 1. Actualizar estado local
+      //  1. ESTADO LOCAL
       banco.transferir(monto, nombre);
 
-      // 2. Guardar en Firebase
-      await guardarMovimiento(nombre, monto);
+      //  2. FIREBASE (SERVICE)
+      final service = FirebaseService();
+      await service.guardarMovimiento(
+        tipo: "Transferencia",
+        destinatario: nombre,
+        monto: monto,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Transferencia a $nombre realizada ✔")),
@@ -81,10 +66,8 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
       Navigator.pop(context);
 
     } catch (e) {
-      print("ERROR FIREBASE: $e");
-
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error al guardar en Firebase")),
+        const SnackBar(content: Text("Error al guardar en Firebase")),
       );
     }
   }
@@ -95,80 +78,132 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
     final banco = context.watch<BancoProvider>();
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
+
       appBar: AppBar(
         title: const Text("Transferencia"),
         backgroundColor: Colors.blue,
+        elevation: 0,
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
 
-            Text(
-              "Saldo disponible: \$${banco.saldo.toStringAsFixed(0)}",
-              style: const TextStyle(
-                  fontSize: 18,
-                  fontWeight: FontWeight.bold),
+            //  CARD SALDO
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.blue, Colors.indigo],
+                ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.blue.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Saldo disponible",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "\$${banco.saldo.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
+              ),
             ),
 
             const SizedBox(height: 30),
 
-            // CUENTA
-            TextField(
-              controller: cuentaController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Número de cuenta",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+            // FORMULARIO
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 10,
+                    color: Colors.black12,
+                  )
+                ],
               ),
-            ),
+              child: Column(
+                children: [
 
-            const SizedBox(height: 15),
+                  TextField(
+                    controller: cuentaController,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDecoration("Número de cuenta"),
+                  ),
 
-            // NOMBRE
-            TextField(
-              controller: nombreController,
-              decoration: InputDecoration(
-                labelText: "Nombre del destinatario",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: nombreController,
+                    decoration: _inputDecoration("Nombre del destinatario"),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: montoController,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDecoration("Monto a transferir"),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: realizarTransferencia,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.blue,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: const Text(
+                        "Transferir",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-            const SizedBox(height: 15),
-
-            // MONTO
-            TextField(
-              controller: montoController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Monto a transferir",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
-              ),
-            ),
-
-            const SizedBox(height: 25),
-
-            // BOTÓN
-            ElevatedButton(
-              onPressed: realizarTransferencia,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 15,
-                ),
-              ),
-              child: const Text("Transferir"),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.grey[100],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }

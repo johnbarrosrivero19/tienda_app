@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_service.dart'; //  NUEVO
 
 class RegistroScreen extends StatefulWidget {
   const RegistroScreen({super.key});
@@ -15,7 +15,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
   final TextEditingController passwordController = TextEditingController();
 
   void registrarUsuario() async {
-
     String nombre = nombreController.text.trim();
     String usuario = usuarioController.text.trim();
     String password = passwordController.text.trim();
@@ -29,16 +28,13 @@ class _RegistroScreenState extends State<RegistroScreen> {
     }
 
     try {
-      //  1. CREAR USUARIO EN FIREBASE AUTH
-      UserCredential userCredential =
-          await FirebaseAuth.instance.createUserWithEmailAndPassword(
-        email: usuario,
-        password: password,
-      );
+      //  USANDO EL SERVICE (ARQUITECTURA)
+      final service = FirebaseService();
+      final user = await service.register(usuario, password);
 
-      String uid = userCredential.user!.uid;
+      String uid = user!.uid;
 
-      //  2. GUARDAR DATOS EN FIRESTORE
+      //  FIRESTORE (SE MANTIENE IGUAL)
       await FirebaseFirestore.instance.collection('usuarios').doc(uid).set({
         'nombre': nombre,
         'correo': usuario,
@@ -50,30 +46,24 @@ class _RegistroScreenState extends State<RegistroScreen> {
         const SnackBar(content: Text("Usuario registrado en Firebase 🚀")),
       );
 
-      //  REGRESAR AL LOGIN
       Future.delayed(const Duration(seconds: 1), () {
         Navigator.pop(context);
       });
 
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
 
       String mensaje = "Error al registrar";
 
-      if (e.code == 'email-already-in-use') {
+      if (e.toString().contains('email-already-in-use')) {
         mensaje = "El correo ya está registrado";
-      } else if (e.code == 'invalid-email') {
+      } else if (e.toString().contains('invalid-email')) {
         mensaje = "Correo inválido";
-      } else if (e.code == 'weak-password') {
+      } else if (e.toString().contains('weak-password')) {
         mensaje = "La contraseña es muy débil (mínimo 6 caracteres)";
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(mensaje)),
-      );
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error: $e")),
       );
     }
   }
@@ -97,7 +87,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
             const SizedBox(height: 25),
 
-            // NOMBRE
             TextField(
               controller: nombreController,
               decoration: InputDecoration(
@@ -110,7 +99,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
             const SizedBox(height: 15),
 
-            // USUARIO (EMAIL)
             TextField(
               controller: usuarioController,
               decoration: InputDecoration(
@@ -123,7 +111,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
             const SizedBox(height: 15),
 
-            // PASSWORD
             TextField(
               controller: passwordController,
               obscureText: true,
@@ -137,7 +124,6 @@ class _RegistroScreenState extends State<RegistroScreen> {
 
             const SizedBox(height: 25),
 
-            // BOTÓN
             ElevatedButton(
               onPressed: registrarUsuario,
               style: ElevatedButton.styleFrom(

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart';
 import 'home_screen.dart';
+import 'firebase_service.dart'; // 👈 NUEVO
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -30,10 +30,9 @@ class _LoginScreenState extends State<LoginScreen> {
     setState(() => cargando = true);
 
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: usuario,
-        password: password,
-      );
+      // 👇 USANDO EL SERVICE (ARQUITECTURA)
+      final service = FirebaseService();
+      await service.login(usuario, password);
 
       Navigator.pushReplacement(
         context,
@@ -42,25 +41,21 @@ class _LoginScreenState extends State<LoginScreen> {
         ),
       );
 
-    } on FirebaseAuthException catch (e) {
+    } catch (e) {
 
       String mensaje = "Error al iniciar sesión";
 
-      if (e.code == 'user-not-found') {
+      // Manejo básico de errores (sin depender directo de FirebaseAuth)
+      if (e.toString().contains('user-not-found')) {
         mensaje = "Usuario no encontrado";
-      } else if (e.code == 'wrong-password') {
+      } else if (e.toString().contains('wrong-password')) {
         mensaje = "Contraseña incorrecta";
-      } else if (e.code == 'invalid-email') {
+      } else if (e.toString().contains('invalid-email')) {
         mensaje = "Correo inválido";
       }
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text(mensaje)),
-      );
-
-    } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Error inesperado")),
       );
     }
 
@@ -91,7 +86,6 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 40),
 
-                //  ICONO
                 const Icon(
                   Icons.account_balance,
                   size: 80,
@@ -118,7 +112,7 @@ class _LoginScreenState extends State<LoginScreen> {
 
                 const SizedBox(height: 40),
 
-                //  CARD FORMULARIO
+                // CARD
                 Container(
                   padding: const EdgeInsets.all(20),
                   decoration: BoxDecoration(

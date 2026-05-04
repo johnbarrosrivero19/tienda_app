@@ -2,8 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
-import 'package:firebase_auth/firebase_auth.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
+import 'firebase_service.dart'; //  NUEVO
 
 class PagoScreen extends StatefulWidget {
   const PagoScreen({super.key});
@@ -38,23 +37,17 @@ class _PagoScreenState extends State<PagoScreen> {
     }
 
     try {
+      //  LÓGICA LOCAL
       banco.pagar(monto, servicio);
 
-      final user = FirebaseAuth.instance.currentUser;
-
-      if (user != null) {
-        await FirebaseFirestore.instance
-            .collection('usuarios')
-            .doc(user.uid)
-            .collection('movimientos')
-            .add({
-          'tipo': 'Pago',
-          'destinatario': servicio,
-          'referencia': referenciaController.text,
-          'monto': monto,
-          'fecha': FieldValue.serverTimestamp(),
-        });
-      }
+      //  FIREBASE DESDE SERVICE (ARQUITECTURA)
+      final service = FirebaseService();
+      await service.guardarMovimiento(
+        tipo: "Pago",
+        destinatario: servicio,
+        monto: monto,
+        referencia: referenciaController.text,
+      );
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Pago de $servicio realizado ✔")),
@@ -88,7 +81,7 @@ class _PagoScreenState extends State<PagoScreen> {
         child: Column(
           children: [
 
-            // 🔥 CARD SALDO
+            //  CARD SALDO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -127,7 +120,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 30),
 
-            //  FORMULARIO
+            // FORM
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -175,7 +168,6 @@ class _PagoScreenState extends State<PagoScreen> {
 
                   const SizedBox(height: 25),
 
-                  //  BOTÓN PRO
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
@@ -203,7 +195,6 @@ class _PagoScreenState extends State<PagoScreen> {
     );
   }
 
-  //  INPUT STYLE GLOBAL
   InputDecoration _inputDecoration(String label) {
     return InputDecoration(
       labelText: label,
