@@ -13,7 +13,6 @@ class MovimientosScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Movimientos"),
-        backgroundColor: Colors.blue,
       ),
 
       body: user == null
@@ -28,56 +27,84 @@ class MovimientosScreen extends StatelessWidget {
 
               builder: (context, snapshot) {
 
-                //  Cargando
+                //  LOADING
                 if (snapshot.connectionState == ConnectionState.waiting) {
                   return const Center(child: CircularProgressIndicator());
                 }
 
-                // ❌ Error
+                //  ERROR
                 if (snapshot.hasError) {
                   return const Center(child: Text("Error al cargar datos"));
                 }
 
-                //  Sin datos
+                //  VACÍO
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
-                    child: Text("No hay movimientos aún"),
+                    child: Text(
+                      "No hay movimientos aún",
+                      style: TextStyle(fontSize: 16),
+                    ),
                   );
                 }
 
                 final movimientos = snapshot.data!.docs;
 
-                //  Lista dinámica
                 return ListView.builder(
+                  padding: const EdgeInsets.all(15),
                   itemCount: movimientos.length,
                   itemBuilder: (context, index) {
 
                     final data = movimientos[index];
 
-                    String tipo = data['tipo'];
+                    String tipo = data['tipo'] ?? "Movimiento";
                     double monto = (data['monto'] as num).toDouble();
 
-                    bool esSalida = tipo == "Transferencia" || tipo == "Pago";
+                    bool esSalida =
+                        tipo == "Transferencia" || tipo == "Pago";
 
-                    return ListTile(
-                      leading: Icon(
-                        esSalida
-                            ? Icons.arrow_upward
-                            : Icons.arrow_downward,
-                        color: esSalida ? Colors.red : Colors.green,
+                    return Card(
+                      margin: const EdgeInsets.only(bottom: 12),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(15),
                       ),
+                      elevation: 3,
 
-                      title: Text(tipo),
+                      child: ListTile(
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 15,
+                          vertical: 10,
+                        ),
 
-                      subtitle: Text(
-                        data['destinatario'] ?? "Sin destinatario",
-                      ),
+                        leading: CircleAvatar(
+                          backgroundColor: esSalida
+                              ? Colors.red.shade100
+                              : Colors.green.shade100,
+                          child: Icon(
+                            esSalida
+                                ? Icons.arrow_upward
+                                : Icons.arrow_downward,
+                            color: esSalida ? Colors.red : Colors.green,
+                          ),
+                        ),
 
-                      trailing: Text(
-                        "${esSalida ? '-' : '+'}\$${monto.toStringAsFixed(0)}",
-                        style: TextStyle(
-                          color: esSalida ? Colors.red : Colors.green,
-                          fontWeight: FontWeight.bold,
+                        title: Text(
+                          tipo,
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        subtitle: Text(
+                          data['destinatario'] ?? "Sin destinatario",
+                        ),
+
+                        trailing: Text(
+                          "${esSalida ? '-' : '+'}\$${monto.toStringAsFixed(0)}",
+                          style: TextStyle(
+                            color: esSalida ? Colors.red : Colors.green,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                       ),
                     );
