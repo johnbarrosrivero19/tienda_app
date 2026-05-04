@@ -1,13 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:intl/intl.dart'; 
 
 class MovimientosScreen extends StatelessWidget {
   const MovimientosScreen({super.key});
 
+  //  FORMATO MONEDA
+  String formatearMoneda(double valor) {
+    final formato = NumberFormat.currency(
+      locale: 'es_CO',
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+    return formato.format(valor);
+  }
+
   @override
   Widget build(BuildContext context) {
-
     final user = FirebaseAuth.instance.currentUser;
 
     return Scaffold(
@@ -37,7 +47,7 @@ class MovimientosScreen extends StatelessWidget {
                   return const Center(child: Text("Error al cargar datos"));
                 }
 
-                //  VACÍO
+                // 📭 VACÍO
                 if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
                   return const Center(
                     child: Text(
@@ -56,8 +66,9 @@ class MovimientosScreen extends StatelessWidget {
 
                     final data = movimientos[index];
 
+                    //  SEGURO (evita crash si falta algo)
                     String tipo = data['tipo'] ?? "Movimiento";
-                    double monto = (data['monto'] as num).toDouble();
+                    double monto = (data['monto'] as num?)?.toDouble() ?? 0;
 
                     bool esSalida =
                         tipo == "Transferencia" || tipo == "Pago";
@@ -98,8 +109,9 @@ class MovimientosScreen extends StatelessWidget {
                           data['destinatario'] ?? "Sin destinatario",
                         ),
 
+                        //  AQUÍ ESTÁ LA MEJORA CLAVE
                         trailing: Text(
-                          "${esSalida ? '-' : '+'}\$${monto.toStringAsFixed(0)}",
+                          "${esSalida ? '-' : '+'}${formatearMoneda(monto)}",
                           style: TextStyle(
                             color: esSalida ? Colors.red : Colors.green,
                             fontWeight: FontWeight.bold,
