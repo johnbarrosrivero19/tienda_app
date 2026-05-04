@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
-// 🔥 FIREBASE
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
@@ -21,11 +20,9 @@ class _PagoScreenState extends State<PagoScreen> {
   final TextEditingController montoController = TextEditingController();
 
   void realizarPago() async {
-
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
-    // VALIDACIONES
     if (monto == null || monto <= 0) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text("Monto inválido")),
@@ -41,10 +38,8 @@ class _PagoScreenState extends State<PagoScreen> {
     }
 
     try {
-      // 🔥 1. DESCONTAR EN PROVIDER
       banco.pagar(monto, servicio);
 
-      // 🔥 2. GUARDAR EN FIREBASE
       final user = FirebaseAuth.instance.currentUser;
 
       if (user != null) {
@@ -61,7 +56,6 @@ class _PagoScreenState extends State<PagoScreen> {
         });
       }
 
-      // 🔥 3. MENSAJE
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text("Pago de $servicio realizado ✔")),
       );
@@ -81,83 +75,143 @@ class _PagoScreenState extends State<PagoScreen> {
     final banco = context.watch<BancoProvider>();
 
     return Scaffold(
+      backgroundColor: Colors.grey[100],
+
       appBar: AppBar(
         title: const Text("Pagar servicios"),
         backgroundColor: Colors.orange,
+        elevation: 0,
       ),
 
-      body: Padding(
+      body: SingleChildScrollView(
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
 
-            Text(
-              "Saldo disponible: \$${banco.saldo.toStringAsFixed(0)}",
-              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-            ),
-
-            const SizedBox(height: 25),
-
-            DropdownButtonFormField<String>(
-              value: servicio,
-              items: const [
-                DropdownMenuItem(value: "Luz", child: Text("Luz")),
-                DropdownMenuItem(value: "Agua", child: Text("Agua")),
-                DropdownMenuItem(value: "Internet", child: Text("Internet")),
-              ],
-              onChanged: (value) {
-                setState(() {
-                  servicio = value!;
-                });
-              },
-              decoration: InputDecoration(
-                labelText: "Servicio",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
+            // 🔥 CARD SALDO
+            Container(
+              width: double.infinity,
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                gradient: const LinearGradient(
+                  colors: [Colors.orange, Colors.deepOrange],
                 ),
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.orange.withOpacity(0.3),
+                    blurRadius: 10,
+                    offset: const Offset(0, 5),
+                  )
+                ],
+              ),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text(
+                    "Saldo disponible",
+                    style: TextStyle(color: Colors.white70),
+                  ),
+                  const SizedBox(height: 10),
+                  Text(
+                    "\$${banco.saldo.toStringAsFixed(0)}",
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 28,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             ),
 
-            const SizedBox(height: 15),
+            const SizedBox(height: 30),
 
-            TextField(
-              controller: referenciaController,
-              decoration: InputDecoration(
-                labelText: "Referencia (opcional)",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+            // 🔥 FORMULARIO
+            Container(
+              padding: const EdgeInsets.all(20),
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 10,
+                    color: Colors.black12,
+                  )
+                ],
               ),
-            ),
+              child: Column(
+                children: [
 
-            const SizedBox(height: 15),
+                  DropdownButtonFormField<String>(
+                    value: servicio,
+                    items: const [
+                      DropdownMenuItem(value: "Luz", child: Text("Luz")),
+                      DropdownMenuItem(value: "Agua", child: Text("Agua")),
+                      DropdownMenuItem(value: "Internet", child: Text("Internet")),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        servicio = value!;
+                      });
+                    },
+                    decoration: _inputDecoration("Servicio"),
+                  ),
 
-            TextField(
-              controller: montoController,
-              keyboardType: TextInputType.number,
-              decoration: InputDecoration(
-                labelText: "Monto",
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(10),
-                ),
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: referenciaController,
+                    decoration: _inputDecoration("Referencia (opcional)"),
+                  ),
+
+                  const SizedBox(height: 15),
+
+                  TextField(
+                    controller: montoController,
+                    keyboardType: TextInputType.number,
+                    decoration: _inputDecoration("Monto"),
+                  ),
+
+                  const SizedBox(height: 25),
+
+                  // 🔥 BOTÓN PRO
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: realizarPago,
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.orange,
+                        padding: const EdgeInsets.symmetric(vertical: 15),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 5,
+                      ),
+                      child: const Text(
+                        "Pagar ahora",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                    ),
+                  ),
+                ],
               ),
-            ),
-
-            const SizedBox(height: 25),
-
-            ElevatedButton(
-              onPressed: realizarPago,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.orange,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 40,
-                  vertical: 15,
-                ),
-              ),
-              child: const Text("Pagar"),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  // 🔥 INPUT STYLE GLOBAL
+  InputDecoration _inputDecoration(String label) {
+    return InputDecoration(
+      labelText: label,
+      filled: true,
+      fillColor: Colors.grey[100],
+      border: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: BorderSide.none,
       ),
     );
   }
