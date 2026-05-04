@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:intl/intl.dart'; // 💰 NUEVO
+
 import 'providers/banco_provider.dart';
 
 import 'package:firebase_auth/firebase_auth.dart';
@@ -19,6 +21,16 @@ class HomeScreen extends StatefulWidget {
 class _HomeScreenState extends State<HomeScreen> {
   bool verSaldo = true;
   String nombreUsuario = "Cargando...";
+
+  // 💰 FORMATO MONEDA PROFESIONAL
+  String formatearMoneda(double valor) {
+    final formato = NumberFormat.currency(
+      locale: 'es_CO',
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+    return formato.format(valor);
+  }
 
   @override
   void initState() {
@@ -71,7 +83,7 @@ class _HomeScreenState extends State<HomeScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
 
-            //  SALUDO
+            // 👋 SALUDO
             Text(
               "Hola, $nombreUsuario",
               style: const TextStyle(
@@ -82,7 +94,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 20),
 
-            //  TARJETA PRO
+            // 💳 TARJETA PRO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(22),
@@ -155,9 +167,10 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 5),
 
+                  // 💰 AQUÍ ESTÁ LA MEJORA CLAVE
                   Text(
                     verSaldo
-                        ? "\$ ${banco.saldo.toStringAsFixed(0)}"
+                        ? formatearMoneda(banco.saldo)
                         : "******",
                     style: const TextStyle(
                       color: Colors.white,
@@ -178,7 +191,7 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            //  ACCIONES
+            // ⚡ ACCIONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
@@ -197,12 +210,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 10),
 
-            //  LISTA PRO
+            // 📋 LISTA PRO
             banco.movimientos.isEmpty
-                ? const Center(child: Padding(
-                    padding: EdgeInsets.all(20),
-                    child: Text("No hay movimientos aún"),
-                  ))
+                ? const Center(
+                    child: Padding(
+                      padding: EdgeInsets.all(20),
+                      child: Text("No hay movimientos aún"),
+                    ),
+                  )
                 : ListView.builder(
                     shrinkWrap: true,
                     physics: const NeverScrollableScrollPhysics(),
@@ -218,8 +233,9 @@ class _HomeScreenState extends State<HomeScreen> {
                         ),
                         child: ListTile(
                           leading: CircleAvatar(
-                            backgroundColor:
-                                esGasto ? Colors.red.shade100 : Colors.green.shade100,
+                            backgroundColor: esGasto
+                                ? Colors.red.shade100
+                                : Colors.green.shade100,
                             child: Icon(
                               esGasto
                                   ? Icons.arrow_upward
@@ -227,7 +243,10 @@ class _HomeScreenState extends State<HomeScreen> {
                               color: esGasto ? Colors.red : Colors.green,
                             ),
                           ),
-                          title: const Text("Movimiento"),
+                          title: Text(
+                            esGasto ? "Salida" : "Ingreso",
+                            style: const TextStyle(fontWeight: FontWeight.bold),
+                          ),
                           subtitle: Text(movimiento),
                         ),
                       );
