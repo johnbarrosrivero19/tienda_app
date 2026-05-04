@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
-import 'firebase_service.dart'; //  NUEVO
+import 'firebase_service.dart';
 
 class TransferenciaScreen extends StatefulWidget {
   const TransferenciaScreen({super.key});
@@ -17,6 +17,8 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
+  bool cargando = false;
+
   void realizarTransferencia() async {
 
     final banco = context.read<BancoProvider>();
@@ -25,33 +27,64 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
     String nombre = nombreController.text.trim();
     double? monto = double.tryParse(montoController.text);
 
-    // VALIDACIONES
-    if (cuenta.isEmpty || nombre.isEmpty || monto == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Todos los campos son obligatorios")),
-      );
+    //  VALIDACIÓN CUENTA
+    if (cuenta.length < 6 || int.tryParse(cuenta) == null) {
+      _error("Cuenta inválida (mínimo 6 dígitos)");
       return;
     }
 
-    if (monto <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Monto inválido")),
-      );
+    //  VALIDACIÓN NOMBRE
+    if (nombre.length < 3) {
+      _error("Nombre inválido");
       return;
     }
 
+    //  VALIDACIÓN MONTO
+    if (monto == null || monto <= 0) {
+      _error("Monto inválido");
+      return;
+    }
+
+    //  DECIMALES
+    if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(montoController.text)) {
+      _error("Máximo 2 decimales");
+      return;
+    }
+
+    //  SALDO
     if (monto > banco.saldo) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Saldo insuficiente")),
-      );
+      _error("Saldo insuficiente");
       return;
     }
+
+    //  CONFIRMACIÓN
+    bool? confirmar = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Confirmar transferencia"),
+        content: Text("¿Enviar \$${monto.toStringAsFixed(0)} a $nombre?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Confirmar"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    setState(() => cargando = true);
 
     try {
-      //  1. ESTADO LOCAL
+      //  ESTADO LOCAL
       banco.transferir(monto, nombre);
 
-      //  2. FIREBASE (SERVICE)
+      //  FIREBASE
       final service = FirebaseService();
       await service.guardarMovimiento(
         tipo: "Transferencia",
@@ -60,16 +93,22 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Transferencia a $nombre realizada ✔")),
+        const SnackBar(content: Text("Transferencia exitosa ✔")),
       );
 
       Navigator.pop(context);
 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al guardar en Firebase")),
-      );
+      _error("Error en la transacción");
     }
+
+    setState(() => cargando = false);
+  }
+
+  void _error(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje)),
+    );
   }
 
   @override
@@ -91,7 +130,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         child: Column(
           children: [
 
-            //  CARD SALDO
+            // CARD SALDO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -130,7 +169,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
             const SizedBox(height: 30),
 
-            // FORMULARIO
+            //  FORMULARIO
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -172,7 +211,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: realizarTransferencia,
+                      onPressed: cargando ? null : realizarTransferencia,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.blue,
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -181,10 +220,12 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
                         ),
                         elevation: 5,
                       ),
-                      child: const Text(
-                        "Transferir",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      child: cargando
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Transferir",
+                              style: TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
                 ],
