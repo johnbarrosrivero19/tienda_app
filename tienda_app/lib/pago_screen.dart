@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
-import 'firebase_service.dart'; //  NUEVO
+import 'firebase_service.dart';
 
 class PagoScreen extends StatefulWidget {
   const PagoScreen({super.key});
@@ -18,35 +18,66 @@ class _PagoScreenState extends State<PagoScreen> {
   final TextEditingController referenciaController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
+  bool cargando = false;
+
   void realizarPago() async {
+
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
+    //  VALIDACIONES
     if (monto == null || monto <= 0) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Monto inválido")),
-      );
+      _error("Monto inválido");
       return;
     }
 
-    if (monto > banco.saldo) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Saldo insuficiente")),
-      );
+    //  DECIMALES
+    if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(montoController.text)) {
+      _error("Máximo 2 decimales");
       return;
     }
+
+    //  SALDO
+    if (monto > banco.saldo) {
+      _error("Saldo insuficiente");
+      return;
+    }
+
+    //  CONFIRMACIÓN
+    bool? confirmar = await showDialog(
+      context: context,
+      builder: (_) => AlertDialog(
+        title: const Text("Confirmar pago"),
+        content: Text(
+          "¿Deseas pagar \$${monto.toStringAsFixed(0)} de $servicio?",
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text("Cancelar"),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: const Text("Confirmar"),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmar != true) return;
+
+    setState(() => cargando = true);
 
     try {
-      //  LÓGICA LOCAL
+      //  ESTADO LOCAL
       banco.pagar(monto, servicio);
 
-      //  FIREBASE DESDE SERVICE (ARQUITECTURA)
+      //  FIREBASE
       final service = FirebaseService();
       await service.guardarMovimiento(
         tipo: "Pago",
         destinatario: servicio,
         monto: monto,
-        referencia: referenciaController.text,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
@@ -56,10 +87,16 @@ class _PagoScreenState extends State<PagoScreen> {
       Navigator.pop(context);
 
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Error al procesar el pago")),
-      );
+      _error("Error en el pago");
     }
+
+    setState(() => cargando = false);
+  }
+
+  void _error(String mensaje) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(mensaje)),
+    );
   }
 
   @override
@@ -120,7 +157,7 @@ class _PagoScreenState extends State<PagoScreen> {
 
             const SizedBox(height: 30),
 
-            // FORM
+            // 🧾 FORMULARIO
             Container(
               padding: const EdgeInsets.all(20),
               decoration: BoxDecoration(
@@ -171,7 +208,7 @@ class _PagoScreenState extends State<PagoScreen> {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton(
-                      onPressed: realizarPago,
+                      onPressed: cargando ? null : realizarPago,
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.orange,
                         padding: const EdgeInsets.symmetric(vertical: 15),
@@ -180,10 +217,12 @@ class _PagoScreenState extends State<PagoScreen> {
                         ),
                         elevation: 5,
                       ),
-                      child: const Text(
-                        "Pagar ahora",
-                        style: TextStyle(fontSize: 16),
-                      ),
+                      child: cargando
+                          ? const CircularProgressIndicator(color: Colors.white)
+                          : const Text(
+                              "Pagar ahora",
+                              style: TextStyle(fontSize: 16),
+                            ),
                     ),
                   ),
                 ],
