@@ -18,7 +18,6 @@ class HomeScreen extends StatefulWidget {
 
 class _HomeScreenState extends State<HomeScreen> {
   bool verSaldo = true;
-
   String nombreUsuario = "Cargando...";
 
   @override
@@ -27,7 +26,6 @@ class _HomeScreenState extends State<HomeScreen> {
     obtenerUsuario();
   }
 
-  //  OBTENER USUARIO 
   void obtenerUsuario() async {
     try {
       final user = FirebaseAuth.instance.currentUser;
@@ -43,7 +41,6 @@ class _HomeScreenState extends State<HomeScreen> {
         });
       }
     } catch (e) {
-      // 🔥 IMPORTANTE: evitar crash en tests
       setState(() {
         nombreUsuario = "Usuario";
       });
@@ -57,49 +54,55 @@ class _HomeScreenState extends State<HomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text("Banco JB"),
-        backgroundColor: Colors.blue,
         actions: [
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: () async {
               await FirebaseAuth.instance.signOut();
-
               Navigator.pop(context);
             },
           ),
         ],
       ),
 
-      body: Padding(
-        padding: const EdgeInsets.all(20.0),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(20),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Hola, $nombreUsuario",
-                style: const TextStyle(
-                  fontSize: 22,
-                  fontWeight: FontWeight.bold,
-                ),
+
+            //  SALUDO
+            Text(
+              "Hola, $nombreUsuario",
+              style: const TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
               ),
             ),
 
             const SizedBox(height: 20),
 
-            // TARJETA
+            //  TARJETA PRO
             Container(
               width: double.infinity,
-              padding: const EdgeInsets.all(20),
+              padding: const EdgeInsets.all(22),
               decoration: BoxDecoration(
                 gradient: const LinearGradient(
                   colors: [Colors.blue, Colors.indigo],
                 ),
                 borderRadius: BorderRadius.circular(20),
+                boxShadow: const [
+                  BoxShadow(
+                    blurRadius: 12,
+                    color: Colors.black26,
+                    offset: Offset(0, 6),
+                  )
+                ],
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
+
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     children: const [
@@ -110,18 +113,22 @@ class _HomeScreenState extends State<HomeScreen> {
                           fontWeight: FontWeight.bold,
                         ),
                       ),
-                      Icon(Icons.account_balance, color: Colors.white),
+                      Icon(Icons.credit_card, color: Colors.white),
                     ],
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
                   const Text(
                     "**** **** **** 1234",
-                    style: TextStyle(color: Colors.white, fontSize: 18),
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      letterSpacing: 2,
+                    ),
                   ),
 
-                  const SizedBox(height: 20),
+                  const SizedBox(height: 25),
 
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -132,7 +139,9 @@ class _HomeScreenState extends State<HomeScreen> {
                       ),
                       IconButton(
                         icon: Icon(
-                          verSaldo ? Icons.visibility : Icons.visibility_off,
+                          verSaldo
+                              ? Icons.visibility
+                              : Icons.visibility_off,
                           color: Colors.white,
                         ),
                         onPressed: () {
@@ -146,14 +155,13 @@ class _HomeScreenState extends State<HomeScreen> {
 
                   const SizedBox(height: 5),
 
-                  // SALDO DESDE PROVIDER
                   Text(
                     verSaldo
                         ? "\$ ${banco.saldo.toStringAsFixed(0)}"
                         : "******",
                     style: const TextStyle(
                       color: Colors.white,
-                      fontSize: 28,
+                      fontSize: 30,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -170,59 +178,67 @@ class _HomeScreenState extends State<HomeScreen> {
 
             const SizedBox(height: 30),
 
-            // BOTONES
+            //  ACCIONES
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceAround,
               children: [
                 botonAccion(Icons.send, "Transferir"),
                 botonAccion(Icons.receipt, "Pagar"),
-                botonAccion(Icons.account_balance, "Cuenta"),
+                botonAccion(Icons.list, "Movimientos"),
               ],
             ),
 
             const SizedBox(height: 30),
 
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                "Últimos movimientos",
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
-              ),
+            const Text(
+              "Últimos movimientos",
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
             ),
 
             const SizedBox(height: 10),
 
-            // LISTA DESDE PROVIDER
-            Expanded(
-              child: banco.movimientos.isEmpty
-                  ? const Center(child: Text("No hay movimientos aún"))
-                  : ListView.builder(
-                      itemCount: banco.movimientos.length,
-                      itemBuilder: (context, index) {
-                        final movimiento = banco.movimientos[index];
+            //  LISTA PRO
+            banco.movimientos.isEmpty
+                ? const Center(child: Padding(
+                    padding: EdgeInsets.all(20),
+                    child: Text("No hay movimientos aún"),
+                  ))
+                : ListView.builder(
+                    shrinkWrap: true,
+                    physics: const NeverScrollableScrollPhysics(),
+                    itemCount: banco.movimientos.length,
+                    itemBuilder: (context, index) {
 
-                        return ListTile(
-                          leading: Icon(
-                            movimiento.contains("Transferencia")
-                                ? Icons.arrow_upward
-                                : Icons.arrow_downward,
-                            color: movimiento.contains("-")
-                                ? Colors.red
-                                : Colors.green,
+                      final movimiento = banco.movimientos[index];
+                      final esGasto = movimiento.contains("-");
+
+                      return Card(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        child: ListTile(
+                          leading: CircleAvatar(
+                            backgroundColor:
+                                esGasto ? Colors.red.shade100 : Colors.green.shade100,
+                            child: Icon(
+                              esGasto
+                                  ? Icons.arrow_upward
+                                  : Icons.arrow_downward,
+                              color: esGasto ? Colors.red : Colors.green,
+                            ),
                           ),
                           title: const Text("Movimiento"),
                           subtitle: Text(movimiento),
-                        );
-                      },
-                    ),
-            ),
+                        ),
+                      );
+                    },
+                  ),
           ],
         ),
       ),
     );
   }
 
-  // BOTONES
   Widget botonAccion(IconData icono, String texto) {
     return Column(
       children: [
@@ -240,7 +256,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 context,
                 MaterialPageRoute(builder: (context) => const PagoScreen()),
               );
-            } else if (texto == "Cuenta") {
+            } else {
               Navigator.push(
                 context,
                 MaterialPageRoute(
@@ -251,7 +267,7 @@ class _HomeScreenState extends State<HomeScreen> {
           },
           child: CircleAvatar(
             radius: 30,
-            backgroundColor: Colors.blue.shade100,
+            backgroundColor: Colors.white,
             child: Icon(icono, color: Colors.blue),
           ),
         ),
