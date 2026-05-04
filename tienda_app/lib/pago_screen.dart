@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'providers/banco_provider.dart';
+import 'package:intl/intl.dart'; // 💰 NUEVO
 
+import 'providers/banco_provider.dart';
 import 'firebase_service.dart';
 
 class PagoScreen extends StatefulWidget {
@@ -20,36 +21,58 @@ class _PagoScreenState extends State<PagoScreen> {
 
   bool cargando = false;
 
+  // 💰 FORMATO MONEDA
+  String formatearMoneda(double valor) {
+    final formato = NumberFormat.currency(
+      locale: 'es_CO',
+      symbol: '\$',
+      decimalDigits: 0,
+    );
+    return formato.format(valor);
+  }
+
   void realizarPago() async {
 
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
-    //  VALIDACIONES
+    // 🔐 VALIDACIONES
     if (monto == null || monto <= 0) {
       _error("Monto inválido");
       return;
     }
 
-    //  DECIMALES
     if (!RegExp(r'^\d+(\.\d{1,2})?$').hasMatch(montoController.text)) {
       _error("Máximo 2 decimales");
       return;
     }
 
-    //  SALDO
     if (monto > banco.saldo) {
       _error("Saldo insuficiente");
       return;
     }
 
-    //  CONFIRMACIÓN
+    // 🔥 CONFIRMACIÓN PRO
     bool? confirmar = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(15),
+        ),
         title: const Text("Confirmar pago"),
-        content: Text(
-          "¿Deseas pagar \$${monto.toStringAsFixed(0)} de $servicio?",
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text("Servicio: $servicio"),
+            const SizedBox(height: 10),
+            Text(
+              formatearMoneda(monto),
+              style: const TextStyle(
+                fontSize: 22,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ],
         ),
         actions: [
           TextButton(
@@ -69,10 +92,10 @@ class _PagoScreenState extends State<PagoScreen> {
     setState(() => cargando = true);
 
     try {
-      //  ESTADO LOCAL
+      // 💰 ESTADO LOCAL
       banco.pagar(monto, servicio);
 
-      //  FIREBASE
+      // ☁️ FIREBASE
       final service = FirebaseService();
       await service.guardarMovimiento(
         tipo: "Pago",
@@ -118,7 +141,7 @@ class _PagoScreenState extends State<PagoScreen> {
         child: Column(
           children: [
 
-            //  CARD SALDO
+            // 💳 CARD SALDO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
@@ -143,8 +166,10 @@ class _PagoScreenState extends State<PagoScreen> {
                     style: TextStyle(color: Colors.white70),
                   ),
                   const SizedBox(height: 10),
+
+                  // 💰 FORMATO APLICADO
                   Text(
-                    "\$${banco.saldo.toStringAsFixed(0)}",
+                    formatearMoneda(banco.saldo),
                     style: const TextStyle(
                       color: Colors.white,
                       fontSize: 28,
