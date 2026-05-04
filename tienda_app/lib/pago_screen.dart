@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'providers/banco_provider.dart';
 
+// 🔥 FIREBASE
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+
 class PagoScreen extends StatefulWidget {
   const PagoScreen({super.key});
 
@@ -16,7 +20,7 @@ class _PagoScreenState extends State<PagoScreen> {
   final TextEditingController referenciaController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
 
-  void realizarPago() {
+  void realizarPago() async {
 
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
@@ -36,14 +40,39 @@ class _PagoScreenState extends State<PagoScreen> {
       return;
     }
 
-    //  USAR PROVIDER
-    banco.pagar(monto, servicio);
+    try {
+      // 🔥 1. DESCONTAR EN PROVIDER
+      banco.pagar(monto, servicio);
 
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text("Pago de $servicio realizado ✔")),
-    );
+      // 🔥 2. GUARDAR EN FIREBASE
+      final user = FirebaseAuth.instance.currentUser;
 
-    Navigator.pop(context);
+      if (user != null) {
+        await FirebaseFirestore.instance
+            .collection('usuarios')
+            .doc(user.uid)
+            .collection('movimientos')
+            .add({
+          'tipo': 'Pago',
+          'destinatario': servicio,
+          'referencia': referenciaController.text,
+          'monto': monto,
+          'fecha': FieldValue.serverTimestamp(),
+        });
+      }
+
+      // 🔥 3. MENSAJE
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text("Pago de $servicio realizado ✔")),
+      );
+
+      Navigator.pop(context);
+
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Error al procesar el pago")),
+      );
+    }
   }
 
   @override
