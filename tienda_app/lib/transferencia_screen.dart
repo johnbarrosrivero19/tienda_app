@@ -19,7 +19,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
   bool cargando = false;
 
-  //  IMPORTANTE: liberar memoria
   @override
   void dispose() {
     cuentaController.dispose();
@@ -62,7 +61,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
       return;
     }
 
-    //  CONFIRMACIÓN
+    // CONFIRMACIÓN
     bool? confirmar = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
@@ -86,18 +85,20 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
     setState(() => cargando = true);
 
     try {
-      //  LOCAL
+      // ESTADO LOCAL
       banco.transferir(monto, nombre);
 
-      //  FIREBASE
+      // FIREBASE ( MEJORADO)
       final service = FirebaseService();
       await service.guardarMovimiento(
         tipo: "Transferencia",
         destinatario: nombre,
         monto: monto,
+        referencia: cuenta,        // 🔥 NUEVO
+        estado: "completado",      // 🔥 NUEVO
       );
 
-      //  LIMPIAR CAMPOS (UX PRO)
+      // LIMPIAR CAMPOS
       cuentaController.clear();
       nombreController.clear();
       montoController.clear();
@@ -145,7 +146,7 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         child: Column(
           children: [
 
-            // CARD SALDO
+            // SALDO
             Container(
               width: double.infinity,
               padding: const EdgeInsets.all(20),
