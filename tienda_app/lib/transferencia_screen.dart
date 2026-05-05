@@ -12,7 +12,6 @@ class TransferenciaScreen extends StatefulWidget {
 }
 
 class _TransferenciaScreenState extends State<TransferenciaScreen> {
-
   final TextEditingController cuentaController = TextEditingController();
   final TextEditingController nombreController = TextEditingController();
   final TextEditingController montoController = TextEditingController();
@@ -28,7 +27,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
   }
 
   void realizarTransferencia() async {
-
     final banco = context.read<BancoProvider>();
 
     String cuenta = cuentaController.text.trim();
@@ -94,8 +92,8 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         tipo: "Transferencia",
         destinatario: nombre,
         monto: monto,
-        referencia: cuenta,        // 🔥 NUEVO
-        estado: "completado",      // 🔥 NUEVO
+        referencia: cuenta, // 🔥 NUEVO
+        estado: "completado", // 🔥 NUEVO
       );
 
       // LIMPIAR CAMPOS
@@ -105,12 +103,22 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
       if (!mounted) return;
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text("Transferencia exitosa ✔")),
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Transferencia exitosa ✔")));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VoucherScreen(
+            tipo: "Transferencia",
+            destinatario: nombre,
+            monto: monto,
+            referencia: cuenta,
+            fecha: DateTime.now(),
+          ),
+        ),
       );
-
-      Navigator.pop(context);
-
     } catch (e) {
       if (!mounted) return;
       _error("Error en la transacción");
@@ -123,14 +131,13 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
 
   void _error(String mensaje) {
     if (!mounted) return;
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
   Widget build(BuildContext context) {
-
     final banco = context.watch<BancoProvider>();
 
     return Scaffold(
@@ -145,7 +152,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             // SALDO
             Container(
               width: double.infinity,
@@ -159,8 +165,10 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Saldo disponible",
-                      style: TextStyle(color: Colors.white70)),
+                  const Text(
+                    "Saldo disponible",
+                    style: TextStyle(color: Colors.white70),
+                  ),
                   const SizedBox(height: 10),
                   Text(
                     "\$${banco.saldo.toStringAsFixed(0)}",
@@ -185,7 +193,6 @@ class _TransferenciaScreenState extends State<TransferenciaScreen> {
               ),
               child: Column(
                 children: [
-
                   TextField(
                     controller: cuentaController,
                     keyboardType: TextInputType.number,
