@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import 'package:intl/intl.dart'; //  
+import 'package:intl/intl.dart'; //
 
 import 'providers/banco_provider.dart';
 import 'firebase_service.dart';
@@ -13,7 +13,6 @@ class PagoScreen extends StatefulWidget {
 }
 
 class _PagoScreenState extends State<PagoScreen> {
-
   String servicio = "Luz";
 
   final TextEditingController referenciaController = TextEditingController();
@@ -32,7 +31,6 @@ class _PagoScreenState extends State<PagoScreen> {
   }
 
   void realizarPago() async {
-
     final banco = context.read<BancoProvider>();
     double? monto = double.tryParse(montoController.text);
 
@@ -56,9 +54,7 @@ class _PagoScreenState extends State<PagoScreen> {
     bool? confirmar = await showDialog(
       context: context,
       builder: (_) => AlertDialog(
-        shape: RoundedRectangleBorder(
-          borderRadius: BorderRadius.circular(15),
-        ),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
         title: const Text("Confirmar pago"),
         content: Column(
           mainAxisSize: MainAxisSize.min,
@@ -67,10 +63,7 @@ class _PagoScreenState extends State<PagoScreen> {
             const SizedBox(height: 10),
             Text(
               formatearMoneda(monto),
-              style: const TextStyle(
-                fontSize: 22,
-                fontWeight: FontWeight.bold,
-              ),
+              style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
             ),
           ],
         ),
@@ -103,12 +96,22 @@ class _PagoScreenState extends State<PagoScreen> {
         monto: monto,
       );
 
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text("Pago de $servicio realizado ✔")),
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("Pago de $servicio realizado ✔")));
+
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (_) => VoucherScreen(
+            tipo: "Pago",
+            destinatario: servicio,
+            monto: monto,
+            referencia: referenciaController.text,
+            fecha: DateTime.now(),
+          ),
+        ),
       );
-
-      Navigator.pop(context);
-
     } catch (e) {
       _error("Error en el pago");
     }
@@ -117,14 +120,13 @@ class _PagoScreenState extends State<PagoScreen> {
   }
 
   void _error(String mensaje) {
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(mensaje)),
-    );
+    ScaffoldMessenger.of(
+      context,
+    ).showSnackBar(SnackBar(content: Text(mensaje)));
   }
 
   @override
   Widget build(BuildContext context) {
-
     final banco = context.watch<BancoProvider>();
 
     return Scaffold(
@@ -140,7 +142,6 @@ class _PagoScreenState extends State<PagoScreen> {
         padding: const EdgeInsets.all(20),
         child: Column(
           children: [
-
             //  CARD SALDO
             Container(
               width: double.infinity,
@@ -155,7 +156,7 @@ class _PagoScreenState extends State<PagoScreen> {
                     color: Colors.orange.withOpacity(0.3),
                     blurRadius: 10,
                     offset: const Offset(0, 5),
-                  )
+                  ),
                 ],
               ),
               child: Column(
@@ -189,21 +190,20 @@ class _PagoScreenState extends State<PagoScreen> {
                 color: Colors.white,
                 borderRadius: BorderRadius.circular(20),
                 boxShadow: const [
-                  BoxShadow(
-                    blurRadius: 10,
-                    color: Colors.black12,
-                  )
+                  BoxShadow(blurRadius: 10, color: Colors.black12),
                 ],
               ),
               child: Column(
                 children: [
-
                   DropdownButtonFormField<String>(
                     value: servicio,
                     items: const [
                       DropdownMenuItem(value: "Luz", child: Text("Luz")),
                       DropdownMenuItem(value: "Agua", child: Text("Agua")),
-                      DropdownMenuItem(value: "Internet", child: Text("Internet")),
+                      DropdownMenuItem(
+                        value: "Internet",
+                        child: Text("Internet"),
+                      ),
                     ],
                     onChanged: (value) {
                       setState(() {
